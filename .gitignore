@@ -1,0 +1,10 @@
+ScratchEntry.sln
+.vs
+__pycache__
+input
+output
+temp
+
+*.ent
+*.json
+*.pyproj
