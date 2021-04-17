@@ -1,7 +1,7 @@
 id_s = 'qwertyuiopasdfghjklzxcvbnm0987654321'
 id_n = [ 0, 0, 0, -1 ]
 
-def get_id():
+def getID():
 	id_n[3] += 1
 	if id_n[3] == 36:
 		id_n[3] = 0

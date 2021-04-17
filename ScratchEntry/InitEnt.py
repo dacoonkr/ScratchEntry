@@ -4,7 +4,7 @@ def initEntfile():
 	ent: dict = {}
 
 	ent["objects"] = []
-	ent["scenes"] = [{"id": IDgen.get_id(), "name": "stage"}]
+	ent["scenes"] = [{"id": IDgen.getID(), "name": "stage"}]
 	ent["variables"] = [{
       "name": "초시계",
       "id": "time",
