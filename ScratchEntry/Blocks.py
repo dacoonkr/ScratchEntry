@@ -38,6 +38,10 @@ reps = {
     "operator_multiply": 16, "operator_divide": 17,
 
     "control_forever": 18, "control_repeat": 19,
+
+    "motion_gotoxy": 20, "motion_glidesecstoxy": 21,
+    "motion_changexby": 22, "motion_setx": 23,
+    "motion_changeyby": 24, "motion_sety": 25,
 }
 
 rets = [
@@ -60,7 +64,12 @@ rets = [
     "calc_basic", "calc_basic", "calc_basic", "calc_basic",
 
     #반복
-    "repeat_inf", "repeat_basic"
+    "repeat_inf", "repeat_basic",
+
+    #좌표이동
+    "locate_xy", "locate_xy_time",
+    "move_x", "locate_x",
+    "move_y", "locate_y",
 ]
 
 def chunkTrace(cur, blockids, origin):
@@ -73,13 +82,13 @@ def chunkTrace(cur, blockids, origin):
                 ret.append(getblock(blockids[cur], rets[opcode], [None]))
 
             if opcode == 4:
-                param = paramTrace(origin[cur]["inputs"]["DURATION"], blockids, origin);
+                param = paramTrace(origin[cur]["inputs"]["DURATION"], blockids, origin)
                 ret.append(getblock(blockids[cur], rets[opcode], [param, None]))
 
             #사칙 연산자
             if 14 <= opcode <= 17:
-                param1 = paramTrace(origin[cur]["inputs"]["NUM1"], blockids, origin);
-                param2 = paramTrace(origin[cur]["inputs"]["NUM2"], blockids, origin);
+                param1 = paramTrace(origin[cur]["inputs"]["NUM1"], blockids, origin)
+                param2 = paramTrace(origin[cur]["inputs"]["NUM2"], blockids, origin)
                 mid = ["PLUS", "MINUS", "MULTI", "DIVIDE"][opcode - 14]
 
                 ret.append(getblock(blockids[cur], rets[opcode], [param1, mid, param2, None]))
@@ -89,10 +98,23 @@ def chunkTrace(cur, blockids, origin):
                 times = None
                 if opcode == 19: 
                     times = paramTrace(origin[cur]["inputs"]["TIMES"], blockids, origin)
-                substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin);
+                substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin)
                 ret.append(getblock(blockids[cur], rets[opcode], [times, None], statement = [substk]))
             
                 print(f"Converted: Block '{cur}' to Block '{blockids[cur]}'")
+
+            #좌표 이동
+            if opcode == 20 or opcode == 21:
+                param1 = paramTrace(origin[cur]["inputs"]["X"], blockids, origin)
+                param2 = paramTrace(origin[cur]["inputs"]["Y"], blockids, origin)
+                if opcode == 21:
+                    sec = paramTrace(origin[cur]["inputs"]["SECS"], blockids, origin)
+                    ret.append(getblock(blockids[cur], rets[opcode], [sec, param1, param2, None]))
+                else:
+                    ret.append(getblock(blockids[cur], rets[opcode], [param1, param2, None]))
+            if 22 <= opcode <= 25:
+                param = paramTrace(origin[cur]["inputs"][["DX", "X", "DY", "Y"][opcode - 22]], blockids, origin)
+                ret.append(getblock(blockids[cur], rets[opcode], [param, None]))
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]
