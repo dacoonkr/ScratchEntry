@@ -48,5 +48,6 @@ def spritesParse(origin: dict):
             "scaleY": 1,
         }
 
+        print(f"Converted: Sprite '{i['name']}' to Object '{ret['id']}'")
         dict_items.append(ret)
     return dict_items

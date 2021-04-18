@@ -34,8 +34,10 @@ reps = {
     "control_create_clone_of": 12,
     "control_delete_this_clone": 13,
 
-    "event_broadcast": "",
-    "event_broadcastandwait": "",
+    "operator_add": 14,
+    "operator_subtract": 15,
+    "operator_multiply": 16,
+    "operator_divide": 17,
 }
 rets = [
     "when_run_button_click",
@@ -52,29 +54,52 @@ rets = [
     "when_clone_start",
     "create_clone",
     "delete_clone",
+
+    #사칙연산자
+    "calc_basic", "calc_basic", "calc_basic", "calc_basic",
 ]
 
 def chunkTrace(cur, blockids, origin):
     ret = []
     while True:
-        print(cur)
-
         try: opcode = reps[origin[cur]["opcode"]]
         except: pass
         else:
             if opcode == 0:
                 ret.append(getblock(blockids[cur], rets[opcode], [None]))
-            if opcode == 4:
-                dur = origin[cur]["inputs"]["DURATION"];
-                if dur[0] == 1:
-                    param1 = getblock(IDgen.getID(), "number", [dur[1][1]])
 
-                ret.append(getblock(blockids[cur], rets[opcode], [param1, None]))
+            if opcode == 4:
+                param = paramTrace(origin[cur]["inputs"]["DURATION"], blockids, origin);
+
+                ret.append(getblock(blockids[cur], rets[opcode], [param, None]))
+
+            #사칙 연산자
+            if 14 <= opcode <= 17:
+                param1 = paramTrace(origin[cur]["inputs"]["NUM1"], blockids, origin);
+                param2 = paramTrace(origin[cur]["inputs"]["NUM2"], blockids, origin);
+                mid = ["PLUS", "MINUS", "MULTI", "DIVIDE"][opcode - 14]
+
+                ret.append(getblock(blockids[cur], rets[opcode], [param1, mid, param2, None]))
+
+            print(f"Converted: Block '{cur}' to Block '{blockids[cur]}'")
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]
 
     return ret
+
+def paramTrace(inputs, blockids, origin):
+    if inputs[0] == 1:
+        return getblock(IDgen.getID(), "number", [inputs[1][1]])
+    elif inputs[0] == 2:
+        #todo
+        pass
+    elif inputs[0] == 3:
+        ret = chunkTrace(inputs[1], blockids, origin)
+        return ret[0]
+    else:
+        #todo
+        pass
 
 def getblock(id, type, params):
     block = {
