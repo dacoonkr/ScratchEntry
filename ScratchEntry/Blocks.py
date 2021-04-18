@@ -34,11 +34,12 @@ reps = {
     "control_create_clone_of": 12,
     "control_delete_this_clone": 13,
 
-    "operator_add": 14,
-    "operator_subtract": 15,
-    "operator_multiply": 16,
-    "operator_divide": 17,
+    "operator_add": 14, "operator_subtract": 15, 
+    "operator_multiply": 16, "operator_divide": 17,
+
+    "control_forever": 18, "control_repeat": 19,
 }
+
 rets = [
     "when_run_button_click",
     "when_some_key_pressed",
@@ -57,6 +58,9 @@ rets = [
 
     #사칙연산자
     "calc_basic", "calc_basic", "calc_basic", "calc_basic",
+
+    #반복
+    "repeat_inf", "repeat_basic"
 ]
 
 def chunkTrace(cur, blockids, origin):
@@ -70,7 +74,6 @@ def chunkTrace(cur, blockids, origin):
 
             if opcode == 4:
                 param = paramTrace(origin[cur]["inputs"]["DURATION"], blockids, origin);
-
                 ret.append(getblock(blockids[cur], rets[opcode], [param, None]))
 
             #사칙 연산자
@@ -81,7 +84,15 @@ def chunkTrace(cur, blockids, origin):
 
                 ret.append(getblock(blockids[cur], rets[opcode], [param1, mid, param2, None]))
 
-            print(f"Converted: Block '{cur}' to Block '{blockids[cur]}'")
+            #반복
+            if opcode == 18 or opcode == 19:
+                times = None
+                if opcode == 19: 
+                    times = paramTrace(origin[cur]["inputs"]["TIMES"], blockids, origin)
+                substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin);
+                ret.append(getblock(blockids[cur], rets[opcode], [times, None], statement = [substk]))
+            
+                print(f"Converted: Block '{cur}' to Block '{blockids[cur]}'")
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]
@@ -91,17 +102,17 @@ def chunkTrace(cur, blockids, origin):
 def paramTrace(inputs, blockids, origin):
     if inputs[0] == 1:
         return getblock(IDgen.getID(), "number", [inputs[1][1]])
-    elif inputs[0] == 2:
-        #todo
-        pass
     elif inputs[0] == 3:
         ret = chunkTrace(inputs[1], blockids, origin)
         return ret[0]
+    elif inputs[0] == 2:
+        ret = chunkTrace(inputs[1], blockids, origin)
+        return ret
     else:
         #todo
         pass
 
-def getblock(id, type, params):
+def getblock(id, type, params, statement = []):
     block = {
         "id": id, "type": type,
         "x": 0, "y": 0, "statements": [],
@@ -110,6 +121,7 @@ def getblock(id, type, params):
         "emphasized": False,
         "readOnly": None,
         "copyable": True,
+        "statements": statement,
         "extensions": [],
         "params": params
     }
