@@ -7,6 +7,7 @@ from reportlab.graphics import renderPM
 import utils.init as init
 import utils.convert.sprites as sprites
 import utils.convert.variables as variables
+import utils.lib.blocklib as lib
 
 def tardir(path, tar_name):
     with tarfile.open(tar_name, "w:gz") as tar_handle:
@@ -46,8 +47,11 @@ origin = json.loads(inputd)
 #빈 파일 생성
 ent = init.initEntfile()
 
+#라이브러리 로드
+libs = lib.library()
+
 #오브젝트 변환하기
-ent["objects"] = sprites.convert(origin["targets"])
+ent["objects"] = sprites.convert(origin["targets"], libs)
 
 #전역 변수 변환하기
 ent["variables"] = variables.convert(origin["targets"][0]["variables"]) \

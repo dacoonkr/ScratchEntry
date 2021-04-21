@@ -1,0 +1,10 @@
+:direct
+
+좌표 이동
+
+/motion_gotoxy locate_xy X Y
+/motion_glidesecstoxy locate_xy_time SECS X Y 
+/motion_changexby move_x DX
+/motion_setx locate_x X
+/motion_changeyby move_y DY
+/motion_sety locate_y Y

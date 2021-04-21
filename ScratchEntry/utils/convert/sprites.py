@@ -3,7 +3,7 @@ import utils.convert.blocks as blocks
 
 import PIL, json
 
-def convert(origin: dict):
+def convert(origin: dict, libs):
     dict_items = []
     for i in origin:
         if i["isStage"] == True: continue
@@ -14,7 +14,7 @@ def convert(origin: dict):
 
         ret["objectType"] = "sprite"
         ret["rotateMethod"] = "free"
-        ret["script"] = json.dumps(blocks.convert(i["blocks"]))
+        ret["script"] = json.dumps(blocks.convert(i["blocks"], libs))
         ret["scene"] = "qqqq"
         ret["lock"] = False
         ret["sprite"] = { "pictures": [] }
