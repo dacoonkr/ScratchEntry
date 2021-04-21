@@ -1,16 +1,18 @@
-import IDgen
+import utils.idgen as idgen
 
-def blocksParse(origin: dict):
+def convert(origin: dict):
     blockids = {}
 
     header = []
 
     for i in origin:
-        blockids[i] = IDgen.getID()
+        blockids[i] = idgen.getID()
 
         block = origin[i]
-        if block["parent"] == None:
-            header.append(i)
+        try:
+            if block["parent"] == None:
+                header.append(i)
+        except: pass
 
     ret = []
     for i in header:
@@ -101,7 +103,7 @@ def chunkTrace(cur, blockids, origin):
                 substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin)
                 ret.append(getblock(blockids[cur], rets[opcode], [times, None], statement = [substk]))
             
-                print(f"Converted: Block '{cur}' to Block '{blockids[cur]}'")
+                print(f"Converted: Block '{cur}' to '{blockids[cur]}'")
 
             #좌표 이동
             if opcode == 20 or opcode == 21:
@@ -123,7 +125,7 @@ def chunkTrace(cur, blockids, origin):
 
 def paramTrace(inputs, blockids, origin):
     if inputs[0] == 1:
-        return getblock(IDgen.getID(), "number", [inputs[1][1]])
+        return getblock(idgen.getID(), "number", [inputs[1][1]])
     elif inputs[0] == 3:
         ret = chunkTrace(inputs[1], blockids, origin)
         return ret[0]

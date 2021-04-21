@@ -1,18 +1,20 @@
-import IDgen, Blocks
+import utils.idgen as idgen
+import utils.convert.blocks as blocks
+
 import PIL, json
 
-def spritesParse(origin: dict):
+def convert(origin: dict):
     dict_items = []
     for i in origin:
         if i["isStage"] == True: continue
         ret = dict()
 
-        ret["id"] = IDgen.getID()
+        ret["id"] = idgen.getID()
         ret["name"] = i["name"]
 
         ret["objectType"] = "sprite"
         ret["rotateMethod"] = "free"
-        ret["script"] = json.dumps(Blocks.blocksParse(i["blocks"]))
+        ret["script"] = json.dumps(blocks.convert(i["blocks"]))
         ret["scene"] = "qqqq"
         ret["lock"] = False
         ret["sprite"] = { "pictures": [] }
@@ -21,7 +23,7 @@ def spritesParse(origin: dict):
             width, height = image.size
 
             ret["sprite"]["pictures"].append({
-                "id": IDgen.getID(),
+                "id": idgen.getID(),
                 "dimension": { "width": width, "height": height },
                 "fileurl": f"temp/{j['md5ext'][0:2]}/{j['md5ext'][2:4]}/image/{j['md5ext']}",
                 "name": j["assetId"],
@@ -48,6 +50,6 @@ def spritesParse(origin: dict):
             "scaleY": 1,
         }
 
-        print(f"Converted: Sprite '{i['name']}' to Object '{ret['id']}'")
+        print(f"Converted: Sprite '{i['name']}' to '{ret['id']}'")
         dict_items.append(ret)
     return dict_items
