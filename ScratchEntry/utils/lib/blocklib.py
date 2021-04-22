@@ -2,6 +2,7 @@ class library:
 	def __init__(self):
 		self.src = open("utils\\lib\\basic.txt", "r").read()
 		self.dict = {}
+		self.vars = {}
 		now = "nothing"
 		for x in self.src.split('\n'):
 			if len(x) == 0: continue
@@ -17,3 +18,9 @@ class library:
 		if opcode in self.dict:
 			return self.dict[opcode]
 		else: return None
+
+	def create_var(self, before, after):
+		self.vars[before] = after
+
+	def get_var(self, before):
+		return self.vars[before]

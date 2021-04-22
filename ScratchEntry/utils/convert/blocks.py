@@ -74,16 +74,17 @@ def chunkTrace(cur, blockids, origin, libs):
             for x in found["params"]:
                 if x[0] == '"':
                     params.append(x[1:])
+                elif x == '&VARIABLE':
+                    params.append(libs.get_var(origin[cur]["fields"]["VARIABLE"][1]))
                 else:
                     params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs))
 
-            if found["type"] == "direct":
+            if found["type"] == "direct" or found["type"] == "operator":
                 ret.append(getblock(blockids[cur], found["code"], params + [None]))
+
             elif found["type"] == "substk":
                 substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs)
                 ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
-            elif found["type"] == "operator":
-                ret.append(getblock(blockids[cur], found["code"], params + [None]))
 
         else:
             try: opcode = reps[origin[cur]["opcode"]]
@@ -105,10 +106,14 @@ def chunkTrace(cur, blockids, origin, libs):
 
 def paramTrace(inputs, blockids, origin, libs):
     if inputs[0] == 1:
-        return getblock(idgen.getID(), "number", [inputs[1][1]])
+        return getblock(idgen.getID(), "text", [str(inputs[1][1])])
     elif inputs[0] == 3:
-        ret = chunkTrace(inputs[1], blockids, origin, libs)
-        return ret[0]
+        if inputs[1][0] == 12:
+            ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[1][2]), None])
+            return ret
+        else:
+            ret = chunkTrace(inputs[1], blockids, origin, libs)
+            return ret[0]
     elif inputs[0] == 2:
         ret = chunkTrace(inputs[1], blockids, origin, libs)
         return ret

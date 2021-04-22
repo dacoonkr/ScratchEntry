@@ -50,12 +50,17 @@ ent = init.initEntfile()
 #라이브러리 로드
 libs = lib.library()
 
+#전역 변수 변환하기
+vars, varids = variables.convert(origin["targets"][0]["variables"])
+lists, listids = variables.convert(origin["targets"][0]["lists"], isList = True)
+dataids = {**varids, **listids} #결합
+for x in vars + lists:
+	ent["variables"].append(x)
+for x in dataids:
+	libs.create_var(x, dataids[x])
+
 #오브젝트 변환하기
 ent["objects"] = sprites.convert(origin["targets"], libs)
-
-#전역 변수 변환하기
-ent["variables"] = variables.convert(origin["targets"][0]["variables"]) \
-                 + variables.convert(origin["targets"][0]["lists"], isList = True)
 
 #변환 결과 쓰기
 open('temp/project.json', 'w').write(json.dumps(ent))

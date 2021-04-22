@@ -7,6 +7,9 @@
 /motion_changeyby move_y DY
 /motion_sety locate_y Y
 
+/data_setvariableto set_variable &VARIABLE VALUE
+/data_changevariableby change_variable &VARIABLE VALUE
+
 :substk
 
 /control_repeat repeat_basic TIMES

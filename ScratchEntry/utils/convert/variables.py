@@ -2,6 +2,7 @@ import utils.idgen as idgen
 
 def convert(origin: dict, isList = False):
     ret = []
+    varids = {}
 
     for i in origin:
         name = origin[i][0]
@@ -16,7 +17,9 @@ def convert(origin: dict, isList = False):
             ret.append(getNewList(name, arr))
             print(f"Converted: List '{i}' to '{ret[-1]['id']}'")
 
-    return ret
+        varids[i] = ret[-1]["id"]
+
+    return ret, varids
 
 def getNewVar(name, value):
 	var = {
