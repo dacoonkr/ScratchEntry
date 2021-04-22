@@ -1,10 +1,20 @@
 :direct
 
-좌표 이동
-
 /motion_gotoxy locate_xy X Y
-/motion_glidesecstoxy locate_xy_time SECS X Y 
+/motion_glidesecstoxy locate_xy_time SECS X Y
 /motion_changexby move_x DX
 /motion_setx locate_x X
 /motion_changeyby move_y DY
 /motion_sety locate_y Y
+
+:substk
+
+/control_repeat repeat_basic TIMES
+/control_forever repeat_inf
+
+:operator
+
+/operator_add calc_basic NUM1 "PLUS NUM2
+/operator_subtract calc_basic NUM1 "MINUS NUM2
+/operator_multiply calc_basic NUM1 "MULTI NUM2
+/operator_divide calc_basic NUM1 "DIVIDE NUM2
