@@ -1,12 +1,10 @@
-# 제작 진행 상태는 Projects탭 확인
-
 # 변환 입력 예제
+
+본 작품은 **58511serial**님의 `3D 정다면체 렌더링`에서 변환되었습니다. https://scratch.mit.edu/projects/140740609/
 
 ![](doc/input.png)
 
 # 변환 결과 예제
-
-프로그램에 의해 자동 생성됨
 
 ![](doc/output.png)
 
