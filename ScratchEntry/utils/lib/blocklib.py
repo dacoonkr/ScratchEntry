@@ -3,6 +3,7 @@ class library:
 		self.src = open("utils\\lib\\basic.txt", "r").read()
 		self.dict = {}
 		self.vars = {}
+		self.fns = {}
 		now = "nothing"
 		for x in self.src.split('\n'):
 			if len(x) == 0: continue
@@ -24,3 +25,9 @@ class library:
 
 	def get_var(self, before):
 		return self.vars[before]
+
+	def create_fn(self, before, after):
+		self.fns["".join(before)] = after
+
+	def get_fn(self, before):
+		return self.fns["".join(before)]

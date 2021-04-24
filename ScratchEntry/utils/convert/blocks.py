@@ -20,7 +20,8 @@ def convert(origin: dict, libs):
     ret = []
     for i in header:
         if origin[i]["opcode"] == "procedures_definition":
-            functions.append(procedures.convert(i, origin, libs))
+            functions.append([procedures.convert(i, origin, libs), 
+                              origin[origin[i]["inputs"]["custom_block"][1]]["mutation"]["argumentids"]])
         else: 
             ret.append(chunkTrace(i, blockids, origin, libs, {}))
 
@@ -79,6 +80,13 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
         if origin[cur]["opcode"] == "argument_reporter_string_number":
             name = origin[cur]["fields"]["VALUE"][0]
             ret.append(getblock(blockids[cur], fn_args[name], [None]))
+        elif origin[cur]["opcode"] == "procedures_call":
+            args = json.loads(origin[cur]["mutation"]["argumentids"])
+            fnid = libs.get_fn(args)
+            params = []
+            for argid in args:
+                params.append(paramTrace(origin[cur]["inputs"][argid], blockids, origin, libs, fn_args))
+            ret.append(getblock(blockids[cur], f"func_{fnid}", params + [None]))
         else:
             found = libs.find(origin[cur]["opcode"])
             if found != None:

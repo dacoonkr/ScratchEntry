@@ -4,13 +4,13 @@ import utils.idgen as idgen
 import json
 
 def convert(cur, origin, libs):
-    ret = blocks.getblock(idgen.getID(), "function_create", [])
-
     source = cur
     cur = origin[cur]["inputs"]["custom_block"][1]
 
     args = json.loads(origin[cur]["mutation"]["argumentids"])
     names = json.loads(origin[cur]["mutation"]["argumentnames"])
+
+    ret = blocks.getblock(libs.get_fn(args), "function_create", [])
 
     block, arglists = subargs(args)
     ret["params"] = [block, None]
