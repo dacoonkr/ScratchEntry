@@ -1,10 +1,12 @@
 import utils.idgen as idgen
+import utils.convert.procedures as procedures
 
 import json
 
 def convert(origin: dict, libs):
     blockids = {}
     header = []
+    functions = []
 
     for i in origin:
         blockids[i] = idgen.getID()
@@ -17,9 +19,12 @@ def convert(origin: dict, libs):
 
     ret = []
     for i in header:
-        ret.append(chunkTrace(i, blockids, origin, libs))
+        if origin[i]["opcode"] == "procedures_definition":
+            functions.append(procedures.convert(i, origin, libs))
+        else: 
+            ret.append(chunkTrace(i, blockids, origin, libs))
 
-    return ret
+    return ret, functions
 
 reps = {
     "event_whenflagclicked": 0,
@@ -66,47 +71,49 @@ rets = [
     "repeat_inf", "repeat_basic",
 ]
 
-def chunkTrace(cur, blockids, origin, libs):
+def chunkTrace(cur, blockids, origin, libs, fn_args):
+    if cur == None: return
+
     ret = []
     while True:
-        found = libs.find(origin[cur]["opcode"])
-        if found != None:
-            params = []
-            for x in found["params"]:
-                if x[0] == '"':
-                    params.append(x[1:])
-                elif x[0] == '#':
-                    fields, dicts = x[1:].split(";")
-                    after = json.loads(dicts)
-                    before = origin[cur]["fields"][fields][0]
-                    if before in after:
-                        params.append(after[before])
-                    else:
-                        params.append(before)
-                elif x == '&VARIABLE':
-                    params.append(libs.get_var(origin[cur]["fields"]["VARIABLE"][1]))
-                elif x == '&NULL':
-                    params.append(None)
-                else:
-                    params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs))
-
-            if found["type"] == "direct" or found["type"] == "operator":
-                ret.append(getblock(blockids[cur], found["code"], params + [None]))
-
-            elif found["type"] == "substk":
-                substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs)
-                ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
-
+        if origin[cur]["opcode"] == "argument_reporter_string_number":
+            name = origin[cur]["fields"]["VALUE"][0]
+            ret.append(getblock(blockids[cur], fn_args[name], [None]))
         else:
-            try: opcode = reps[origin[cur]["opcode"]]
-            except: pass
-            else:
-                if opcode == 0:
-                    ret.append(getblock(blockids[cur], rets[opcode], [None]))
+            found = libs.find(origin[cur]["opcode"])
+            if found != None:
+                params = []
+                for x in found["params"]:
+                    if x[0] == '"':
+                        params.append(x[1:])
+                    elif x[0] == '#':
+                        fields, dicts = x[1:].split(";")
+                        after = json.loads(dicts)
+                        before = origin[cur]["fields"][fields][0]
+                        if before in after:
+                            params.append(after[before])
+                        else:
+                            params.append(before)
+                    elif x == '&VARIABLE':
+                        params.append(libs.get_var(origin[cur]["fields"]["VARIABLE"][1]))
+                    elif x == '&NULL':
+                        params.append(None)
+                    else:
+                        params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs,     fn_args))
 
-                if opcode == 4:
-                    param = paramTrace(origin[cur]["inputs"]["DURATION"], blockids, origin, libs)
-                    ret.append(getblock(blockids[cur], rets[opcode], [param, None]))
+                if found["type"] == "direct" or found["type"] == "operator":
+                    ret.append(getblock(blockids[cur], found["code"], params + [None]))
+
+                elif found["type"] == "substk":
+                    substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs,     fn_args)
+                    ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
+
+            else:
+                try: opcode = reps[origin[cur]["opcode"]]
+                except: pass
+                else:
+                    if opcode == 0:
+                        ret.append(getblock(blockids[cur], rets[opcode], [None]))
 
         print(f"Converted: Block '{cur}'")
 
@@ -115,7 +122,7 @@ def chunkTrace(cur, blockids, origin, libs):
 
     return ret
 
-def paramTrace(inputs, blockids, origin, libs):
+def paramTrace(inputs, blockids, origin, libs, fn_args):
     if inputs[0] == 1:
         return getblock(idgen.getID(), "text", [str(inputs[1][1])])
     elif inputs[0] == 4:
@@ -125,10 +132,10 @@ def paramTrace(inputs, blockids, origin, libs):
             ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[1][2]), None])
             return ret
         else:
-            ret = chunkTrace(inputs[1], blockids, origin, libs)
+            ret = chunkTrace(inputs[1], blockids, origin, libs,     fn_args)
             return ret[0]
     elif inputs[0] == 2:
-        ret = chunkTrace(inputs[1], blockids, origin, libs)
+        ret = chunkTrace(inputs[1], blockids, origin, libs,     fn_args)
         return ret
     else:
         #todo

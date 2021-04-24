@@ -13,6 +13,8 @@
 /sensing_mousex coordinate_mouse &NULL "x &NULL
 /sensing_mousey coordinate_mouse &NULL "y &NULL
 
+/control_wait wait_second DURATION
+
 :substk
 
 /control_repeat repeat_basic TIMES

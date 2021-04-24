@@ -5,6 +5,7 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
 import utils.init as init
+import utils.idgen as idgen
 import utils.convert.sprites as sprites
 import utils.convert.blocks as blocks
 import utils.convert.variables as variables
@@ -71,7 +72,10 @@ for x in localdatas:
 
 #코드 변환하기
 for x in range(len(origin["targets"]) - 1): #스테이지 제외한 반복
-	ent["objects"][x]["script"] = json.dumps(blocks.convert(origin["targets"][x + 1]["blocks"], libs))
+	script, functions = blocks.convert(origin["targets"][x + 1]["blocks"], libs)
+	ent["objects"][x]["script"] = json.dumps(script)
+	for f in functions:
+		ent["functions"].append({"content": json.dumps([f]), "id": idgen.getID()})
 
 #변환 결과 쓰기
 open('temp/project.json', 'w').write(json.dumps(ent))
