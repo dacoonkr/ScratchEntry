@@ -2,7 +2,6 @@ import utils.idgen as idgen
 
 def convert(origin: dict, libs):
     blockids = {}
-
     header = []
 
     for i in origin:

@@ -1,20 +1,27 @@
 import utils.idgen as idgen
-import utils.convert.blocks as blocks
+import utils.convert.variables as variables
 
 import PIL, json
 
 def convert(origin: dict, libs):
     dict_items = []
+    localvars = []
+    localdatas = {}
     for i in origin:
         if i["isStage"] == True: continue
         ret = dict()
 
         ret["id"] = idgen.getID()
         ret["name"] = i["name"]
+        
+        #지역변수 처리
+        vars, varids = variables.convert(i["variables"], target = ret["id"])
+        lists, listids = variables.convert(i["lists"], target = ret["id"], isList = True)
+        localvars += vars + lists
+        localdatas = {**localdatas, **varids, **listids}
 
         ret["objectType"] = "sprite"
         ret["rotateMethod"] = "free"
-        ret["script"] = json.dumps(blocks.convert(i["blocks"], libs))
         ret["scene"] = "qqqq"
         ret["lock"] = False
         ret["sprite"] = { "pictures": [] }
@@ -52,4 +59,5 @@ def convert(origin: dict, libs):
 
         print(f"Converted: Sprite '{i['name']}' to '{ret['id']}'")
         dict_items.append(ret)
-    return dict_items
+
+    return dict_items, localvars, localdatas

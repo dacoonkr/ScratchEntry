@@ -6,6 +6,7 @@ from reportlab.graphics import renderPM
 
 import utils.init as init
 import utils.convert.sprites as sprites
+import utils.convert.blocks as blocks
 import utils.convert.variables as variables
 import utils.lib.blocklib as lib
 
@@ -53,14 +54,24 @@ libs = lib.library()
 #전역 변수 변환하기
 vars, varids = variables.convert(origin["targets"][0]["variables"])
 lists, listids = variables.convert(origin["targets"][0]["lists"], isList = True)
-dataids = {**varids, **listids} #결합
+dataids = {**varids, **listids}
 for x in vars + lists:
 	ent["variables"].append(x)
 for x in dataids:
 	libs.create_var(x, dataids[x])
 
 #오브젝트 변환하기
-ent["objects"] = sprites.convert(origin["targets"], libs)
+ent["objects"], localvars, localdatas = sprites.convert(origin["targets"], libs)
+
+#지역 변수 받기
+for x in localvars:
+	ent["variables"].append(x)
+for x in localdatas:
+	libs.create_var(x, localdatas[x])
+
+#코드 변환하기
+for x in range(len(origin["targets"]) - 1): #스테이지 제외한 반복
+	ent["objects"][x]["script"] = json.dumps(blocks.convert(origin["targets"][x + 1]["blocks"], libs))
 
 #변환 결과 쓰기
 open('temp/project.json', 'w').write(json.dumps(ent))
