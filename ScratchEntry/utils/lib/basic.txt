@@ -10,6 +10,9 @@
 /data_setvariableto set_variable &VARIABLE VALUE
 /data_changevariableby change_variable &VARIABLE VALUE
 
+/sensing_mousex coordinate_mouse &NULL "x &NULL
+/sensing_mousey coordinate_mouse &NULL "y &NULL
+
 :substk
 
 /control_repeat repeat_basic TIMES
@@ -21,3 +24,6 @@
 /operator_subtract calc_basic NUM1 "MINUS NUM2
 /operator_multiply calc_basic NUM1 "MULTI NUM2
 /operator_divide calc_basic NUM1 "DIVIDE NUM2
+
+/operator_mathop calc_operation &NULL NUM &NULL #OPERATOR;{"sqrt":"root","ceiling":"ceil"}
+/operator_round calc_operation &NULL NUM &NULL "round

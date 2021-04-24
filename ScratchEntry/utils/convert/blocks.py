@@ -1,5 +1,7 @@
 import utils.idgen as idgen
 
+import json
+
 def convert(origin: dict, libs):
     blockids = {}
     header = []
@@ -73,8 +75,18 @@ def chunkTrace(cur, blockids, origin, libs):
             for x in found["params"]:
                 if x[0] == '"':
                     params.append(x[1:])
+                elif x[0] == '#':
+                    fields, dicts = x[1:].split(";")
+                    after = json.loads(dicts)
+                    before = origin[cur]["fields"][fields][0]
+                    if before in after:
+                        params.append(after[before])
+                    else:
+                        params.append(before)
                 elif x == '&VARIABLE':
                     params.append(libs.get_var(origin[cur]["fields"]["VARIABLE"][1]))
+                elif x == '&NULL':
+                    params.append(None)
                 else:
                     params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs))
 
@@ -106,6 +118,8 @@ def chunkTrace(cur, blockids, origin, libs):
 def paramTrace(inputs, blockids, origin, libs):
     if inputs[0] == 1:
         return getblock(idgen.getID(), "text", [str(inputs[1][1])])
+    elif inputs[0] == 4:
+        return getblock(idgen.getID(), "number", [inputs[1][1]])
     elif inputs[0] == 3:
         if inputs[1][0] == 12:
             ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[1][2]), None])
