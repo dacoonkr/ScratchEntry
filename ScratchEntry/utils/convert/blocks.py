@@ -22,7 +22,7 @@ def convert(origin: dict, libs):
         if origin[i]["opcode"] == "procedures_definition":
             functions.append(procedures.convert(i, origin, libs))
         else: 
-            ret.append(chunkTrace(i, blockids, origin, libs))
+            ret.append(chunkTrace(i, blockids, origin, libs, {}))
 
     return ret, functions
 
@@ -99,14 +99,20 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                     elif x == '&NULL':
                         params.append(None)
                     else:
-                        params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs,     fn_args))
+                        params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args))
 
                 if found["type"] == "direct" or found["type"] == "operator":
                     ret.append(getblock(blockids[cur], found["code"], params + [None]))
 
                 elif found["type"] == "substk":
-                    substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs,     fn_args)
-                    ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
+                    substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args)
+                    if found["code"] == "if_else" or found["code"] == "_if":
+                        substk2 = None
+                        if found["code"] == "if_else": 
+                            substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args)
+                        ret.append(getblock(blockids[cur], found["code"], [params[0][0], None], statement = [substk, substk2]))
+                    else:
+                        ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
 
             else:
                 try: opcode = reps[origin[cur]["opcode"]]
@@ -132,10 +138,10 @@ def paramTrace(inputs, blockids, origin, libs, fn_args):
             ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[1][2]), None])
             return ret
         else:
-            ret = chunkTrace(inputs[1], blockids, origin, libs,     fn_args)
+            ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
             return ret[0]
     elif inputs[0] == 2:
-        ret = chunkTrace(inputs[1], blockids, origin, libs,     fn_args)
+        ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
         return ret
     else:
         #todo

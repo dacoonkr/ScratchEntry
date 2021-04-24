@@ -15,10 +15,20 @@
 
 /control_wait wait_second DURATION
 
+/pen_clear brush_erase_all
+/pen_stamp brush_stamp
+/pen_penDown start_drawing
+/pen_penUp stop_drawing
+/pen_changePenSizeBy change_thickness SIZE
+/pen_setPenSizeTo set_thickness SIZE
+
 :substk
 
 /control_repeat repeat_basic TIMES
 /control_forever repeat_inf
+
+/control_if _if CONDITION
+/control_if_else if_else CONDITION
 
 :operator
 
@@ -29,3 +39,7 @@
 
 /operator_mathop calc_operation &NULL NUM &NULL #OPERATOR;{"sqrt":"root","ceiling":"ceil"}
 /operator_round calc_operation &NULL NUM &NULL "round
+
+/operator_equals boolean_basic_operator OPERAND1 "EQUAL OPERAND2
+/operator_lt boolean_basic_operator OPERAND1 "LESS OPERAND2
+/operator_gt boolean_basic_operator OPERAND1 "GREATER OPERAND2
