@@ -13,7 +13,7 @@ import utils.lib.blocklib as lib
 
 def tardir(path, tar_name):
     with tarfile.open(tar_name, "w:gz") as tar_handle:
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for file in files:
                 tar_handle.add(os.path.join(root, file))
 
@@ -32,16 +32,16 @@ for filename in os.listdir(folder):
 
 #리소스 압축해제
 for i in flist:
-	dir = f"temp/{i[0:2]}/{i[2:4]}";
-	if i[-3::1] == "svg":
-		inputf.extract(i, f"{dir}/image")
-		inputf.extract(i, f"{dir}/thumb")
-		drawing = svg2rlg(f"{dir}/image/{i}")
-		renderPM.drawToFile(drawing, f"{dir}/image/{i[0:-3]}png", fmt = "PNG")
-		renderPM.drawToFile(drawing, f"{dir}/thumb/{i[0:-3]}png", fmt = "PNG")
-	if i[-3::1] == "png":
-		inputf.extract(i, f"{dir}/image")
-		inputf.extract(i, f"{dir}/thumb")
+    dir = f"temp/{i[0:2]}/{i[2:4]}";
+    if i[-3::1] == "svg":
+        inputf.extract(i, f"{dir}/image")
+        inputf.extract(i, f"{dir}/thumb")
+        drawing = svg2rlg(f"{dir}/image/{i}")
+        renderPM.drawToFile(drawing, f"{dir}/image/{i[0:-3]}png", fmt = "PNG")
+        renderPM.drawToFile(drawing, f"{dir}/thumb/{i[0:-3]}png", fmt = "PNG")
+    if i[-3::1] == "png":
+        inputf.extract(i, f"{dir}/image")
+        inputf.extract(i, f"{dir}/thumb")
 
 #입력 스크래치 파일
 origin = json.loads(inputd)
@@ -57,32 +57,60 @@ vars, varids = variables.convert(origin["targets"][0]["variables"])
 lists, listids = variables.convert(origin["targets"][0]["lists"], isList = True)
 dataids = {**varids, **listids}
 for x in vars + lists:
-	ent["variables"].append(x)
+    ent["variables"].append(x)
 for x in dataids:
-	libs.create_var(x, dataids[x])
+    libs.create_var(x, dataids[x])
 
 #함수 찾기
 for x in origin["targets"]:
-	for j in x["blocks"]:
-		if x["blocks"][j]["opcode"] == "procedures_prototype":
-			argids = json.loads(x["blocks"][j]["mutation"]["argumentids"])
-			libs.create_fn(argids, idgen.getID())
+    for j in x["blocks"]:
+        if x["blocks"][j]["opcode"] == "procedures_prototype":
+            argids = json.loads(x["blocks"][j]["mutation"]["argumentids"])
+            libs.create_fn(argids, idgen.getID())
 
 #오브젝트 변환하기
-ent["objects"], localvars, localdatas = sprites.convert(origin["targets"], libs)
+ent["objects"], localvars, localdatas = sprites.convert(origin["targets"])
 
 #지역 변수 받기
 for x in localvars:
-	ent["variables"].append(x)
+    ent["variables"].append(x)
 for x in localdatas:
-	libs.create_var(x, localdatas[x])
+    libs.create_var(x, localdatas[x])
+
+#스크립트 전체탐색
+rus = []
+def script_dfs(script):
+    global rus
+    if script == None or type(script) == str:
+       return
+    try:
+        for i in script:
+            if "content" in i:
+                rus.append(i)
+                continue
+            if type(i) == str: continue
+            try: script_dfs(i["statements"][0])
+            except: script_dfs(i)
+    except:
+       pass
+    return
 
 #코드 변환하기
 for x in range(len(origin["targets"]) - 1): #스테이지 제외한 반복
-	script, functions = blocks.convert(origin["targets"][x + 1]["blocks"], libs)
-	ent["objects"][x]["script"] = json.dumps(script)
-	for f in functions:
-		ent["functions"].append({"content": json.dumps([f[0]]), "id": libs.get_fn(json.loads(f[1]))})
+    script, functions = blocks.convert(origin["targets"][x + 1]["blocks"], libs)
+
+    rus = []
+    script_dfs(script)
+    scripts = json.dumps(script)
+    for i in rus:
+        d = json.dumps(i)
+        scripts = scripts.replace(f"{d},", "")
+
+    ent["objects"][x]["script"] = scripts
+    for f in functions:
+        ent["functions"].append({"content": json.dumps([f[0]]), "id": libs.get_fn(json.loads(f[1]))})
+    for f in rus:
+        ent["functions"].append(f)
 
 #변환 결과 쓰기
 open('temp/project.json', 'w').write(json.dumps(ent))

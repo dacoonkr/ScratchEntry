@@ -10,6 +10,16 @@
 /data_setvariableto set_variable &VARIABLE VALUE
 /data_changevariableby change_variable &VARIABLE VALUE
 
+/data_addtolist add_value_to_list ITEM &LIST
+/data_deleteoflist remove_value_from_list INDEX &LIST
+/data_insertatlist insert_value_to_list ITEM &LIST INDEX
+/data_replaceitemoflist change_value_list_index &LIST INDEX ITEM
+
+/data_itemoflist value_of_index_from_list &NULL &LIST &NULL INDEX
+/data_lengthoflist length_of_list &NULL &LIST
+
+/data_listcontainsitem is_included_in_list &NULL &LIST &NULL ITEM
+
 /sensing_mousex coordinate_mouse &NULL "x &NULL
 /sensing_mousey coordinate_mouse &NULL "y &NULL
 
@@ -43,3 +53,7 @@
 /operator_equals boolean_basic_operator OPERAND1 "EQUAL OPERAND2
 /operator_lt boolean_basic_operator OPERAND1 "LESS OPERAND2
 /operator_gt boolean_basic_operator OPERAND1 "GREATER OPERAND2
+
+:macro
+
+/data_deletealloflist resetlist &LIST

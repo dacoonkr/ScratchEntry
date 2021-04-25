@@ -24,6 +24,14 @@ def convert(cur, origin, libs):
         blockids[i] = idgen.getID()
     return [ret] + blocks.chunkTrace(origin[source]["next"], blockids, origin, libs, fn_args = fn_args)
 
+def get_fn_definition(params):
+    fn_definition = blocks.getblock(idgen.getID(), "function_create", [])
+
+    block, arglists = subargs(params)
+    fn_definition["params"] = [block, None]
+
+    return fn_definition
+
 def subargs(args):
     if len(args) == 0: return None, []
     stringParam = blocks.getblock(idgen.getID(), f"stringParam_{idgen.getID()}", [])

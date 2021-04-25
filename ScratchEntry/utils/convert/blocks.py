@@ -1,5 +1,6 @@
 import utils.idgen as idgen
 import utils.convert.procedures as procedures
+import utils.convert.macro.macros as macros
 
 import json
 
@@ -28,48 +29,11 @@ def convert(origin: dict, libs):
     return ret, functions
 
 reps = {
-    "event_whenflagclicked": 0,
-    "event_whenkeypressed": 1,
-    "event_whenthisspriteclicked": 2,
-    "event_whenbroadcastreceived": 3,
-    "control_wait": 4,
-    "control_repeat": 5,
-    "control_forever": 6,
-    "control_if": 7,
-    "control_if_else": 8,
-    "control_wait_until": 9,
-    "control_repeat_until": 10,
-    "control_start_as_clone": 11,
-    "control_create_clone_of": 12,
-    "control_delete_this_clone": 13,
-
-    "operator_add": 14, "operator_subtract": 15, 
-    "operator_multiply": 16, "operator_divide": 17,
-
-    "control_forever": 18, "control_repeat": 19,
+    "event_whenflagclicked": 0
 }
 
 rets = [
     "when_run_button_click",
-    "when_some_key_pressed",
-    "when_object_click",
-    "when_message_cast",
-    "wait_second",
-    "repeat_basic",
-    "repeat_inf",
-    "_if",
-    "if_else",
-    "wait_until_true",
-    "repeat_while_true",
-    "when_clone_start",
-    "create_clone",
-    "delete_clone",
-
-    #사칙연산자
-    "calc_basic", "calc_basic", "calc_basic", "calc_basic",
-
-    #반복
-    "repeat_inf", "repeat_basic",
 ]
 
 def chunkTrace(cur, blockids, origin, libs, fn_args):
@@ -102,8 +66,8 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                             params.append(after[before])
                         else:
                             params.append(before)
-                    elif x == '&VARIABLE':
-                        params.append(libs.get_var(origin[cur]["fields"]["VARIABLE"][1]))
+                    elif x == '&VARIABLE' or x == '&LIST':
+                        params.append(libs.get_var(origin[cur]["fields"][x[1:]][1]))
                     elif x == '&NULL':
                         params.append(None)
                     else:
@@ -121,6 +85,12 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                         ret.append(getblock(blockids[cur], found["code"], [params[0][0], None], statement = [substk, substk2]))
                     else:
                         ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
+
+                elif found["type"] == "macro":
+                    if found["code"] == "resetlist":
+                        fn_definition, fn_call = macros.resetlist(params[0])
+                        ret.append(fn_definition)
+                        ret.append(fn_call)
 
             else:
                 try: opcode = reps[origin[cur]["opcode"]]
@@ -158,7 +128,7 @@ def paramTrace(inputs, blockids, origin, libs, fn_args):
 def getblock(id, type, params, statement = []):
     block = {
         "id": id, "type": type,
-        "x": 0, "y": 0, "statements": [],
+        "x": 0, "y": 0,
         "movable": None,
         "deletable": 1,
         "emphasized": False,

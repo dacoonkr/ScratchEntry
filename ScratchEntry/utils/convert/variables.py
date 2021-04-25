@@ -22,7 +22,7 @@ def convert(origin: dict, target = None, isList = False):
     return ret, varids
 
 def getNewVar(name, value, target):
-	var = {
+    var = {
         "name": name, "value": value, "id": idgen.getID(),
         "cloudDate": False,
         "isCloud": False,
@@ -32,10 +32,10 @@ def getNewVar(name, value, target):
         "visible": False,
         "x": 0, "y": 0
     }
-	return var
+    return var
 
 def getNewList(name, values, target):
-	var = {
+    var = {
         "name": name, "value": 0, "id": idgen.getID(),
         "array": values,
         "cloudDate": False,
@@ -47,4 +47,4 @@ def getNewList(name, values, target):
         "x": 0, "y": 0,
         "height": 120, "width": 100,
     }
-	return var
+    return var

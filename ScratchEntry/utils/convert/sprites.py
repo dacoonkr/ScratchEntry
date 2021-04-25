@@ -1,9 +1,9 @@
 import utils.idgen as idgen
 import utils.convert.variables as variables
 
-import PIL, json
+import PIL
 
-def convert(origin: dict, libs):
+def convert(origin: dict):
     dict_items = []
     localvars = []
     localdatas = {}
