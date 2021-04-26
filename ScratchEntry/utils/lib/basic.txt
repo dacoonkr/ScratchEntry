@@ -54,6 +54,11 @@
 /operator_lt boolean_basic_operator OPERAND1 "LESS OPERAND2
 /operator_gt boolean_basic_operator OPERAND1 "GREATER OPERAND2
 
+/operator_not boolean_not &NULL OPERAND
+/operator_or boolean_and_or OPERAND1 "OR OPERAND2
+/operator_and boolean_and_or OPERAND1 "AND OPERAND2
+
+
 :macro
 
 /data_deletealloflist resetlist &LIST

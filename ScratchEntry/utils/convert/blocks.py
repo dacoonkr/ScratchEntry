@@ -41,7 +41,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
 
     ret = []
     while True:
-        if origin[cur]["opcode"] == "argument_reporter_string_number":
+        if origin[cur]["opcode"] == "argument_reporter_string_number" or origin[cur]["opcode"] == "argument_reporter_boolean":
             name = origin[cur]["fields"]["VALUE"][0]
             ret.append(getblock(blockids[cur], fn_args[name], [None]))
         elif origin[cur]["opcode"] == "procedures_call":
@@ -82,6 +82,8 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                         substk2 = None
                         if found["code"] == "if_else": 
                             substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args)
+                        if params == [[]]:
+                            print(f"stop by {cur}")
                         ret.append(getblock(blockids[cur], found["code"], [params[0][0], None], statement = [substk, substk2]))
                     else:
                         ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
@@ -117,6 +119,7 @@ def paramTrace(inputs, blockids, origin, libs, fn_args):
             return ret
         else:
             ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
+            if len(ret) == 0: return []
             return ret[0]
     elif inputs[0] == 2:
         ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
