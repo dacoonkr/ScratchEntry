@@ -14,24 +14,27 @@ def convert(cur, origin, libs):
     ret = blocks.getblock(libs.get_fn(args), "function_create", [])
     types = []
 
+    if cur == 'wWtIT8Ezrhg*UgIdZ,)%':
+        print(cur)
+
     while True:
         st = proccode.find("%s")
+        nu = proccode.find("%n")
         bo = proccode.find("%b")
-        if st == -1 and bo == -1: break
+        if st == -1 and bo == -1 and nu == -1: break
+        if st == -1: st = 999999999999999
+        if bo == -1: bo = 999999999999999
+        if nu == -1: nu = 999999999999999
 
         s = list(proccode)
-        if st == -1: 
-            s[bo] = '$'
-            types.append("boolean")
-        elif bo == -1: 
-            s[st] = '$'
+        t = min(st, bo, nu)
+
+        if s[t + 1] == 'n' or s[t + 1] == 's':
+            s[t] = '&'
             types.append("string")
-        else:
-            if min(st, bo) == st:
-                types.append("boolean")
-            else:
-                types.append("string")
-            s[min(st, bo)] = '$'
+        elif s[t + 1] == 'b':
+            s[t] = '&'
+            types.append("boolean")
 
         proccode = "".join(s)
 
@@ -50,10 +53,10 @@ def convert(cur, origin, libs):
     if b == None: b = []
     return [ret] + b
 
-def get_fn_definition(params):
+def get_fn_definition(params, types):
     fn_definition = blocks.getblock(idgen.getID(), "function_create", [])
 
-    block, arglists = subargs(params)
+    block, arglists = subargs(params, types)
     fn_definition["params"] = [block, None]
 
     return fn_definition

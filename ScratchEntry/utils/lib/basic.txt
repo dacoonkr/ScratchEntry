@@ -1,3 +1,7 @@
+:header
+
+/event_whenflagclicked when_run_button_click
+
 :direct
 
 /motion_gotoxy locate_xy X Y

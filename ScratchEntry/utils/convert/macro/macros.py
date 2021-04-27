@@ -5,7 +5,7 @@ import utils.idgen as idgen
 import json
 
 def resetlist(list):
-    fn_definition = [procedures.get_fn_definition([ idgen.getID() ])]
+    fn_definition = [procedures.get_fn_definition([ idgen.getID() ], ["string"])]
     
     fnid = idgen.getID()
     fn_call = blocks.getblock(idgen.getID(), f"func_{fnid}", [blocks.getblock(idgen.getID(), "text", ["리스트 비우기"]), None])

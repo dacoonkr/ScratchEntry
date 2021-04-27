@@ -14,7 +14,7 @@ def convert(origin: dict, libs):
 
         block = origin[i]
         try:
-            if block["parent"] == None:
+            if libs.find(block["opcode"])["type"] == "header":
                 header.append(i)
         except: pass
 
@@ -27,14 +27,6 @@ def convert(origin: dict, libs):
             ret.append(chunkTrace(i, blockids, origin, libs, {}))
 
     return ret, functions
-
-reps = {
-    "event_whenflagclicked": 0
-}
-
-rets = [
-    "when_run_button_click",
-]
 
 def chunkTrace(cur, blockids, origin, libs, fn_args):
     if cur == None: return
@@ -73,7 +65,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                     else:
                         params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args))
 
-                if found["type"] == "direct" or found["type"] == "operator":
+                if found["type"] == "direct" or found["type"] == "operator" or found["type"] == "header":
                     ret.append(getblock(blockids[cur], found["code"], params + [None]))
 
                 elif found["type"] == "substk":
@@ -95,13 +87,9 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                         ret.append(fn_call)
 
             else:
-                try: opcode = reps[origin[cur]["opcode"]]
-                except: pass
-                else:
-                    if opcode == 0:
-                        ret.append(getblock(blockids[cur], rets[opcode], [None]))
+                print(f"BLOCK MISS! {origin[cur]['opcode']}")
 
-        print(f"Converted: Block '{cur}'")
+        #print(f"Converted: Block '{cur}'")
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]
