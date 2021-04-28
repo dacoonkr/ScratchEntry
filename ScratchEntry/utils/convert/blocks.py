@@ -13,17 +13,21 @@ def convert(origin: dict, libs):
         blockids[i] = idgen.getID()
 
         block = origin[i]
-        try:
-            if libs.find(block["opcode"])["type"] == "header":
+        ret = libs.find(block["opcode"])
+        if ret != None:
+            if ret["type"] == "header":
                 header.append(i)
-        except: pass
+                continue
+        if "parent" in block:
+            if block["parent"] == None:
+                print(f"HEADER MISS! {block['opcode']}")
 
     ret = []
     for i in header:
         if origin[i]["opcode"] == "procedures_definition":
             functions.append([procedures.convert(i, origin, libs), 
                               origin[origin[i]["inputs"]["custom_block"][1]]["mutation"]["argumentids"]])
-        else: 
+        else:
             ret.append(chunkTrace(i, blockids, origin, libs, {}))
 
     return ret, functions
@@ -35,7 +39,10 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
     while True:
         if origin[cur]["opcode"] == "argument_reporter_string_number" or origin[cur]["opcode"] == "argument_reporter_boolean":
             name = origin[cur]["fields"]["VALUE"][0]
-            ret.append(getblock(blockids[cur], fn_args[name], [None]))
+            if not name in fn_args:
+                ret.append(getblock(idgen.getID(), "number", [0]))
+            else: 
+                ret.append(getblock(blockids[cur], fn_args[name], [None]))
         elif origin[cur]["opcode"] == "procedures_call":
             args = json.loads(origin[cur]["mutation"]["argumentids"])
             fnid = libs.get_fn(args)
@@ -69,7 +76,10 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                     ret.append(getblock(blockids[cur], found["code"], params + [None]))
 
                 elif found["type"] == "substk":
-                    substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args)
+                    if "SUBSTACK" in origin[cur]["inputs"]:
+                        substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args)
+                    else: substk = []
+
                     if found["code"] == "if_else" or found["code"] == "_if":
                         substk2 = None
                         if found["code"] == "if_else": 

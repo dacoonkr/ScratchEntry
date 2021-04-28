@@ -1,4 +1,4 @@
-id_s = 'abcdefghijklmnopqrstuvwxyz1234567890'
+id_s = 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 id_n = [ 0, 0, 0, -1 ]
 
 def getID():
