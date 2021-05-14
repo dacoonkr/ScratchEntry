@@ -7,6 +7,7 @@ def convert(origin: dict):
     dict_items = []
     localvars = []
     localdatas = {}
+    spts_lib = {}
     for i in origin:
         if i["isStage"] == True: continue
         ret = dict()
@@ -59,5 +60,6 @@ def convert(origin: dict):
 
         print(f"Converted: Sprite '{i['name']}' to '{ret['id']}'")
         dict_items.append(ret)
+        spts_lib[i["name"]] = ret["id"]
 
-    return dict_items, localvars, localdatas
+    return dict_items, localvars, localdatas, spts_lib

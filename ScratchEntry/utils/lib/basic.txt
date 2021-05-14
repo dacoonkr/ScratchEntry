@@ -12,6 +12,9 @@
 /motion_changeyby move_y DY
 /motion_sety locate_y Y
 
+/looks_show show
+/looks_hide hide
+
 /sensing_mousedown is_clicked
 
 /data_setvariableto set_variable &VARIABLE VALUE
@@ -65,6 +68,7 @@
 /operator_or boolean_and_or OPERAND1 "OR OPERAND2
 /operator_and boolean_and_or OPERAND1 "AND OPERAND2
 
+/sensing_touchingobject reach_something &NULL *TOUCHINGOBJECTMENU
 
 :macro
 

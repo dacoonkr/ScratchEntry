@@ -4,6 +4,7 @@ class library:
         self.dict = {}
         self.vars = {}
         self.fns = {}
+        self.spts = {}
         now = "nothing"
         for x in self.src.split('\n'):
             if len(x) == 0: continue
@@ -31,3 +32,9 @@ class library:
 
     def get_fn(self, before):
         return self.fns[before]
+
+    def create_spt(self, before, after):
+        self.spts[before] = after
+
+    def get_spt(self, before):
+        return self.spts[before]

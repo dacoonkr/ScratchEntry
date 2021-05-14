@@ -72,13 +72,15 @@ for x in origin["targets"]:
             libs.create_fn(x["blocks"][j]["mutation"]["proccode"], idgen.getID())
 
 #오브젝트 변환하기
-ent["objects"], localvars, localdatas = sprites.convert(origin["targets"])
+ent["objects"], localvars, localdatas, spts_lib = sprites.convert(origin["targets"])
 
 #지역 변수 받기
 for x in localvars:
     ent["variables"].append(x)
 for x in localdatas:
     libs.create_var(x, localdatas[x])
+for x in spts_lib:
+    libs.create_spt(x, spts_lib[x])
 
 #스크립트 전체탐색
 rus = []
@@ -101,7 +103,6 @@ def script_dfs(script):
 #코드 변환하기
 for x in range(len(origin["targets"]) - 1): #스테이지 제외한 반복
     script, functions = blocks.convert(origin["targets"][x + 1]["blocks"], libs)
-
     rus = []
     script_dfs(script)
     scripts = json.dumps(script)

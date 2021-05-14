@@ -65,14 +65,18 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                             params.append(after[before])
                         else:
                             params.append(before)
+                    elif x[0] == '*':
+                        params.append(libs.get_spt(origin[origin[cur]["inputs"][x[1:]][1]]["fields"][x[1:]][0]))
                     elif x == '&VARIABLE' or x == '&LIST':
                         params.append(libs.get_var(origin[cur]["fields"][x[1:]][1]))
                     elif x == '&NULL':
                         params.append(None)
                     else:
-                        params.append(paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args))
-
+                        d = paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args)
+                        params.append(d)
                 if found["type"] == "direct" or found["type"] == "operator" or found["type"] == "header":
+                    if found["code"] == "boolean_not":
+                        ret.append(getblock(blockids[cur], found["code"], params[1] + [None]))
                     ret.append(getblock(blockids[cur], found["code"], params + [None]))
 
                 elif found["type"] == "substk":
