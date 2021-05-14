@@ -11,7 +11,7 @@ def convert(cur, origin, libs):
     names = json.loads(origin[cur]["mutation"]["argumentnames"])
     proccode = origin[cur]["mutation"]["proccode"]
 
-    ret = blocks.getblock(libs.get_fn(args), "function_create", [])
+    ret = blocks.getblock(libs.get_fn(proccode), "function_create", [])
     types = []
 
     if cur == 'wWtIT8Ezrhg*UgIdZ,)%':
@@ -29,16 +29,15 @@ def convert(cur, origin, libs):
         s = list(proccode)
         t = min(st, bo, nu)
 
+        s[t] = ' '
         if s[t + 1] == 'n' or s[t + 1] == 's':
-            s[t] = '&'
             types.append("string")
         elif s[t + 1] == 'b':
-            s[t] = '&'
             types.append("boolean")
 
         proccode = "".join(s)
 
-    block, arglists = subargs(args, types)
+    block, arglists = subargs([proccode] + args, ["label"] + types)
     ret["params"] = [block, None]
 
     fn_args = {}
@@ -71,4 +70,7 @@ def subargs(args, types):
     elif types[0] == "boolean":
         fnParam = blocks.getblock(idgen.getID(), f"booleanParam_{idgen.getID()}", [])
         argblock = blocks.getblock(idgen.getID(), "function_field_boolean", [fnParam, sub])
+    elif types[0] == "label":
+        fnParam = {"type": None}
+        argblock = blocks.getblock(idgen.getID(), "function_field_label", [args[0], sub])
     return argblock, [fnParam["type"]] + fn_args

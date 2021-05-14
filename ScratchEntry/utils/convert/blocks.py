@@ -26,7 +26,7 @@ def convert(origin: dict, libs):
     for i in header:
         if origin[i]["opcode"] == "procedures_definition":
             functions.append([procedures.convert(i, origin, libs), 
-                              origin[origin[i]["inputs"]["custom_block"][1]]["mutation"]["argumentids"]])
+                              origin[origin[i]["inputs"]["custom_block"][1]]["mutation"]["proccode"]])
         else:
             ret.append(chunkTrace(i, blockids, origin, libs, {}))
 
@@ -45,7 +45,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                 ret.append(getblock(blockids[cur], fn_args[name], [None]))
         elif origin[cur]["opcode"] == "procedures_call":
             args = json.loads(origin[cur]["mutation"]["argumentids"])
-            fnid = libs.get_fn(args)
+            fnid = libs.get_fn(origin[cur]["mutation"]["proccode"])
             params = []
             for argid in args:
                 params.append(paramTrace(origin[cur]["inputs"][argid], blockids, origin, libs, fn_args))
@@ -108,6 +108,8 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
 
 def paramTrace(inputs, blockids, origin, libs, fn_args):
     if inputs[0] == 1:
+        if inputs[1] == None:
+            return getblock(idgen.getID(), "text", [""])
         return getblock(idgen.getID(), "text", [str(inputs[1][1])])
     elif inputs[0] == 4:
         return getblock(idgen.getID(), "number", [inputs[1][1]])

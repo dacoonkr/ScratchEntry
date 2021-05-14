@@ -65,8 +65,7 @@ for x in dataids:
 for x in origin["targets"]:
     for j in x["blocks"]:
         if x["blocks"][j]["opcode"] == "procedures_prototype":
-            argids = json.loads(x["blocks"][j]["mutation"]["argumentids"])
-            libs.create_fn(argids, idgen.getID())
+            libs.create_fn(x["blocks"][j]["mutation"]["proccode"], idgen.getID())
 
 #오브젝트 변환하기
 ent["objects"], localvars, localdatas = sprites.convert(origin["targets"])
@@ -108,7 +107,7 @@ for x in range(len(origin["targets"]) - 1): #스테이지 제외한 반복
 
     ent["objects"][x]["script"] = scripts
     for f in functions:
-        ent["functions"].append({"content": json.dumps([f[0]]), "id": libs.get_fn(json.loads(f[1]))})
+        ent["functions"].append({"content": json.dumps([f[0]]), "id": libs.get_fn(f[1])})
     for f in rus:
         ent["functions"].append(f)
 

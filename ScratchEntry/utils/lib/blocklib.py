@@ -27,7 +27,7 @@ class library:
         return self.vars[before]
 
     def create_fn(self, before, after):
-        self.fns["".join(before)] = after
+        self.fns[before] = after
 
     def get_fn(self, before):
-        return self.fns["".join(before)]
+        return self.fns[before]
