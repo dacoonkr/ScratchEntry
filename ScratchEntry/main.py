@@ -37,8 +37,12 @@ for i in flist:
         inputf.extract(i, f"{dir}/image")
         inputf.extract(i, f"{dir}/thumb")
         drawing = svg2rlg(f"{dir}/image/{i}")
-        renderPM.drawToFile(drawing, f"{dir}/image/{i[0:-3]}png", fmt = "PNG")
-        renderPM.drawToFile(drawing, f"{dir}/thumb/{i[0:-3]}png", fmt = "PNG")
+        try:
+            renderPM.drawToFile(drawing, f"{dir}/image/{i[0:-3]}png", fmt = "PNG")
+            renderPM.drawToFile(drawing, f"{dir}/thumb/{i[0:-3]}png", fmt = "PNG")
+        except:
+            shutil.copyfile(os.path.join("", "empty.png"), 
+            os.path.join(f"{dir}/image", f"{i[0:-3]}png"))
     if i[-3::1] == "png":
         inputf.extract(i, f"{dir}/image")
         inputf.extract(i, f"{dir}/thumb")

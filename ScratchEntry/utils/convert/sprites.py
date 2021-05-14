@@ -1,7 +1,7 @@
 import utils.idgen as idgen
 import utils.convert.variables as variables
 
-import PIL
+import PIL.Image
 
 def convert(origin: dict):
     dict_items = []
