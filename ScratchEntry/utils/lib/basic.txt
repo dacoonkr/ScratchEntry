@@ -14,9 +14,12 @@
 /motion_setx locate_x X
 /motion_changeyby move_y DY
 /motion_sety locate_y Y
+/motion_movesteps move_direction STEPS
 
 /looks_show show
 /looks_hide hide
+
+/looks_say dialog MESSAGE "speak &NULL
 
 /sensing_mousedown is_clicked
 
@@ -53,6 +56,8 @@
 /control_if _if CONDITION
 /control_if_else if_else CONDITION
 
+/control_repeat_until repeat_while_true CONDITION "until
+
 :operator
 
 /operator_add calc_basic NUM1 "PLUS NUM2
@@ -72,6 +77,7 @@
 /operator_and boolean_and_or OPERAND1 "AND OPERAND2
 
 /sensing_touchingobject reach_something &NULL *TOUCHINGOBJECTMENU
+/sensing_keypressed is_press_some_key *KEY_OPTION
 
 :macro
 

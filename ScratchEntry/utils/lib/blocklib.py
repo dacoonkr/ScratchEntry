@@ -45,3 +45,24 @@ class library:
 
     def get_brd(self, before):
         return self.brds[before]["id"]
+
+    def keyconvert(self, keycode):
+        #UPDATE예정
+        if keycode == "space":
+            return 32
+
+        elif keycode == "up arrow":
+            return 38
+        elif keycode == "down arrow":
+            return 40
+        elif keycode == "left arrow":
+            return 37
+        elif keycode == "right arrow":
+            return 39
+
+        elif ord('a') <= ord(keycode) <= ord('z'):
+            return ord(keycode) - ord('a') + ord('A')
+        elif ord('0') <= ord(keycode) <= ord('9'):
+            return ord(keycode)
+
+        return -1

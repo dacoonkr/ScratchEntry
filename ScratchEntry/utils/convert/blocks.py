@@ -70,7 +70,11 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                     elif x[0] == '!':
                         params.append(libs.get_brd(origin[cur]["inputs"]["BROADCAST_INPUT"][1][2]))
                     elif x[0] == '*':
-                        params.append(libs.get_spt(origin[origin[cur]["inputs"][x[1:]][1]]["fields"][x[1:]][0]))
+                        dat = origin[origin[cur]["inputs"][x[1:]][1]]["fields"][x[1:]][0]
+                        if x[1:] == "TOUCHINGOBJECTMENU":
+                            params.append(libs.get_spt(dat))
+                        if x[1:] == "KEY_OPTION":
+                            params.append(libs.keyconvert(dat))
                     elif x == '&VARIABLE' or x == '&LIST':
                         params.append(libs.get_var(origin[cur]["fields"][x[1:]][1]))
                     elif x == '&NULL':
@@ -88,7 +92,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                         substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args)
                     else: substk = []
 
-                    if found["code"] == "if_else" or found["code"] == "_if":
+                    if found["code"] == "if_else" or found["code"] == "_if" or found["code"] == "repeat_while_true":
                         substk2 = None
                         if found["code"] == "if_else": 
                             substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args)
