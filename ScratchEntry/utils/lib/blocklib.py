@@ -5,6 +5,7 @@ class library:
         self.vars = {}
         self.fns = {}
         self.spts = {}
+        self.brds = {}
         now = "nothing"
         for x in self.src.split('\n'):
             if len(x) == 0: continue
@@ -38,3 +39,9 @@ class library:
 
     def get_spt(self, before):
         return self.spts[before]
+
+    def create_brd(self, before, after):
+        self.brds[before] = after
+
+    def get_brd(self, before):
+        return self.brds[before]["id"]

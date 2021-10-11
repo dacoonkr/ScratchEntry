@@ -6,6 +6,7 @@ import PIL.Image
 def convert(origin: dict):
     dict_items = []
     localvars = []
+    localbroadcasts = []
     localdatas = {}
     spts_lib = {}
     for i in origin:
@@ -18,7 +19,9 @@ def convert(origin: dict):
         #지역변수 처리
         vars, varids = variables.convert(i["variables"], target = ret["id"])
         lists, listids = variables.convert(i["lists"], target = ret["id"], isList = True)
+        broadcasts = variables.convert_broadcast(i["broadcasts"])
         localvars += vars + lists
+        localbroadcasts += broadcasts
         localdatas = {**localdatas, **varids, **listids}
 
         ret["objectType"] = "sprite"
@@ -62,4 +65,4 @@ def convert(origin: dict):
         dict_items.append(ret)
         spts_lib[i["name"]] = ret["id"]
 
-    return dict_items, localvars, localdatas, spts_lib
+    return dict_items, localvars, localdatas, localbroadcasts, spts_lib

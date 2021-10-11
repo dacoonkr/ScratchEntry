@@ -1,9 +1,12 @@
 :header
 
 /event_whenflagclicked when_run_button_click
+/event_whenbroadcastreceived when_message_cast !!BROADCAST_OPTION
 /procedures_definition dump
 
 :direct
+
+/event_broadcast message_cast !BROADCAST_INPUT
 
 /motion_gotoxy locate_xy X Y
 /motion_glidesecstoxy locate_xy_time SECS X Y

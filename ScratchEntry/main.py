@@ -56,14 +56,18 @@ ent = init.initEntfile()
 #라이브러리 로드
 libs = lib.library()
 
-#전역 변수 변환하기
+#전역 변수, 전역 신호 변환하기
 vars, varids = variables.convert(origin["targets"][0]["variables"])
 lists, listids = variables.convert(origin["targets"][0]["lists"], isList = True)
+broadcasts = variables.convert_broadcast(origin["targets"][0]["broadcasts"])
 dataids = {**varids, **listids}
 for x in vars + lists:
     ent["variables"].append(x)
 for x in dataids:
     libs.create_var(x, dataids[x])
+for x in broadcasts:
+    ent["messages"].append(broadcasts[x])
+    libs.create_brd(x, broadcasts[x])
 
 #함수 찾기
 for x in origin["targets"]:
@@ -72,11 +76,14 @@ for x in origin["targets"]:
             libs.create_fn(x["blocks"][j]["mutation"]["proccode"], idgen.getID())
 
 #오브젝트 변환하기
-ent["objects"], localvars, localdatas, spts_lib = sprites.convert(origin["targets"])
+ent["objects"], localvars, localdatas, localbroadcasts, spts_lib = sprites.convert(origin["targets"])
 
-#지역 변수 받기
+#지역 변수, 신호 받기
 for x in localvars:
     ent["variables"].append(x)
+for x in localbroadcasts:
+    ent["messages"].append(broadcasts[x])
+    libs.create_brd(x, localbroadcasts[x])
 for x in localdatas:
     libs.create_var(x, localdatas[x])
 for x in spts_lib:

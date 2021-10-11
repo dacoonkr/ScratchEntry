@@ -65,6 +65,10 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                             params.append(after[before])
                         else:
                             params.append(before)
+                    elif x[0:2] == '!!':
+                        params.append(libs.get_brd(origin[cur]["fields"]["BROADCAST_OPTION"][1]))
+                    elif x[0] == '!':
+                        params.append(libs.get_brd(origin[cur]["inputs"]["BROADCAST_INPUT"][1][2]))
                     elif x[0] == '*':
                         params.append(libs.get_spt(origin[origin[cur]["inputs"][x[1:]][1]]["fields"][x[1:]][0]))
                     elif x == '&VARIABLE' or x == '&LIST':

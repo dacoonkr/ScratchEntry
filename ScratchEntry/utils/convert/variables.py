@@ -21,6 +21,16 @@ def convert(origin: dict, target = None, isList = False):
 
     return ret, varids
 
+def convert_broadcast(origin: dict):
+    ret = {}
+    
+    for i in origin:
+        name = origin[i]
+        ret[i] = {"id": idgen.getID(), "name": name}
+        print(f"Converted: Broadcast '{i}' to '{ret[i]['id']}'")
+
+    return ret
+
 def getNewVar(name, value, target):
     var = {
         "name": name, "value": value, "id": idgen.getID(),
