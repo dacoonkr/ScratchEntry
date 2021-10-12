@@ -4,7 +4,7 @@ import utils.convert.macro.macros as macros
 
 import json
 
-def convert(origin: dict, libs):
+def convert(origin: dict, libs, object_number):
     blockids = {}
     header = []
     functions = []
@@ -25,14 +25,14 @@ def convert(origin: dict, libs):
     ret = []
     for i in header:
         if origin[i]["opcode"] == "procedures_definition":
-            functions.append([procedures.convert(i, origin, libs), 
+            functions.append([procedures.convert(i, origin, libs, object_number), 
                               origin[origin[i]["inputs"]["custom_block"][1]]["mutation"]["proccode"]])
         else:
-            ret.append(chunkTrace(i, blockids, origin, libs, {}))
+            ret.append(chunkTrace(i, blockids, origin, libs, {}, object_number))
 
     return ret, functions
 
-def chunkTrace(cur, blockids, origin, libs, fn_args):
+def chunkTrace(cur, blockids, origin, libs, fn_args, object_number):
     if cur == None: return
 
     ret = []
@@ -48,7 +48,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
             fnid = libs.get_fn(origin[cur]["mutation"]["proccode"])
             params = []
             for argid in args:
-                params.append(paramTrace(origin[cur]["inputs"][argid], blockids, origin, libs, fn_args))
+                params.append(paramTrace(origin[cur]["inputs"][argid], blockids, origin, libs, fn_args, object_number))
             ret.append(getblock(blockids[cur], f"func_{fnid}", params + [None]))
         else:
             found = libs.find(origin[cur]["opcode"])
@@ -69,6 +69,12 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                         params.append(libs.get_brd(origin[cur]["fields"]["BROADCAST_OPTION"][1]))
                     elif x[0] == '!':
                         params.append(libs.get_brd(origin[cur]["inputs"]["BROADCAST_INPUT"][1][2]))
+                    elif x[0] == '^':
+                        data = origin[cur]["inputs"]["COSTUME"][1]
+                        if type(data) == list: 
+                            params.append(getblock(idgen.getID(), "get_pictures", [paramTrace(data, blockids, origin, libs, fn_args, object_number)]))
+                        else:
+                            params.append(getblock(idgen.getID(), "get_pictures", [libs.get_costume(object_number, origin[data]["fields"]["COSTUME"][0])]))
                     elif x[0] == '*':
                         dat = origin[origin[cur]["inputs"][x[1:]][1]]["fields"][x[1:]][0]
                         if x[1:] == "TOUCHINGOBJECTMENU":
@@ -80,7 +86,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
                     elif x == '&NULL':
                         params.append(None)
                     else:
-                        d = paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args)
+                        d = paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args, object_number)
                         params.append(d)
                 if found["type"] == "direct" or found["type"] == "operator" or found["type"] == "header":
                     if found["code"] == "boolean_not":
@@ -89,13 +95,15 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
 
                 elif found["type"] == "substk":
                     if "SUBSTACK" in origin[cur]["inputs"]:
-                        substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args)
+                        substk = paramTrace(origin[cur]["inputs"]["SUBSTACK"], blockids, origin, libs, fn_args, object_number)
                     else: substk = []
 
                     if found["code"] == "if_else" or found["code"] == "_if" or found["code"] == "repeat_while_true":
                         substk2 = None
-                        if found["code"] == "if_else": 
-                            substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args)
+                        if found["code"] == "if_else":
+                            if not "SUBSTACK2" in origin[cur]["inputs"]:
+                                substk2 = []
+                            else: substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args, object_number)
                         if params == [[]]:
                             print(f"stop by {cur}")
                         ret.append(getblock(blockids[cur], found["code"], [params[0][0], None], statement = [substk, substk2]))
@@ -111,14 +119,14 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
             else:
                 print(f"BLOCK MISS! {origin[cur]['opcode']}")
 
-        print(f"Converted: Block '{cur}'")
+        #print(f"Converted: Block '{cur}'")
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]
 
     return ret
 
-def paramTrace(inputs, blockids, origin, libs, fn_args):
+def paramTrace(inputs, blockids, origin, libs, fn_args, object_number):
     if inputs[0] == 1:
         if inputs[1] == None:
             return getblock(idgen.getID(), "text", [""])
@@ -130,11 +138,14 @@ def paramTrace(inputs, blockids, origin, libs, fn_args):
             ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[1][2]), None])
             return ret
         else:
-            ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
+            ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args, object_number)
             if len(ret) == 0: return []
             return ret[0]
     elif inputs[0] == 2:
-        ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args)
+        ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args, object_number)
+        return ret
+    elif inputs[0] == 12:
+        ret = getblock(idgen.getID(), "get_variable", [libs.get_var(inputs[2]), None])
         return ret
     else:
         #todo

@@ -3,7 +3,7 @@ import utils.idgen as idgen
 
 import json
 
-def convert(cur, origin, libs):
+def convert(cur, origin, libs, object_number):
     source = cur
     cur = origin[cur]["inputs"]["custom_block"][1]
 
@@ -45,7 +45,7 @@ def convert(cur, origin, libs):
     for i in origin:
         blockids[i] = idgen.getID()
     
-    b = blocks.chunkTrace(origin[source]["next"], blockids, origin, libs, fn_args = fn_args)
+    b = blocks.chunkTrace(origin[source]["next"], blockids, origin, libs, fn_args, object_number)
     if b == None: b = []
     return [ret] + b
 

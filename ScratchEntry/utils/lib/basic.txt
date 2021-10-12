@@ -19,6 +19,8 @@
 /looks_show show
 /looks_hide hide
 
+/looks_switchcostumeto change_to_some_shape ^COSTUME
+
 /looks_say dialog MESSAGE "speak &NULL
 
 /sensing_mousedown is_clicked
@@ -75,6 +77,12 @@
 /operator_not boolean_not &NULL OPERAND
 /operator_or boolean_and_or OPERAND1 "OR OPERAND2
 /operator_and boolean_and_or OPERAND1 "AND OPERAND2
+
+/operator_random calc_rand  &NULL FROM &NULL TO
+
+/operator_letter_of char_at &NULL STRING &NULL LETTER
+
+/looks_costumenumbername coordinate_object &NULL "self &NULL #NUMBER_NAME;{"name":"picture_name","index":"picture_index"}
 
 /sensing_touchingobject reach_something &NULL *TOUCHINGOBJECTMENU
 /sensing_keypressed is_press_some_key *KEY_OPTION

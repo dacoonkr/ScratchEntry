@@ -9,6 +9,9 @@ def convert(origin: dict):
     localbroadcasts = []
     localdatas = {}
     spts_lib = {}
+    costumes = {}
+
+    object_number = 1
     for i in origin:
         if i["isStage"] == True: continue
         ret = dict()
@@ -37,11 +40,14 @@ def convert(origin: dict):
                 "id": idgen.getID(),
                 "dimension": { "width": width, "height": height },
                 "fileurl": f"temp/{j['md5ext'][0:2]}/{j['md5ext'][2:4]}/image/{j['md5ext']}",
-                "name": j["assetId"],
+                "name": j["name"],
                 "filename": j["assetId"],
                 "imageType": j["md5ext"][-3::1],
                 "scale": 100
             })
+
+            costumes[f"{object_number}::{j['name']}"] = ret["sprite"]["pictures"][-1]["id"]
+
         ret["selectedPictureId"] = ret["sprite"]["pictures"][i["currentCostume"]]["id"]
 
         ret["entity"] = {
@@ -65,4 +71,6 @@ def convert(origin: dict):
         dict_items.append(ret)
         spts_lib[i["name"]] = ret["id"]
 
-    return dict_items, localvars, localdatas, localbroadcasts, spts_lib
+        object_number += 1
+
+    return dict_items, localvars, localdatas, localbroadcasts, spts_lib, costumes

@@ -6,6 +6,7 @@ class library:
         self.fns = {}
         self.spts = {}
         self.brds = {}
+        self.ctms = {}
         now = "nothing"
         for x in self.src.split('\n'):
             if len(x) == 0: continue
@@ -47,22 +48,19 @@ class library:
         return self.brds[before]["id"]
 
     def keyconvert(self, keycode):
-        #UPDATE예정
-        if keycode == "space":
-            return 32
-
-        elif keycode == "up arrow":
-            return 38
-        elif keycode == "down arrow":
-            return 40
-        elif keycode == "left arrow":
-            return 37
-        elif keycode == "right arrow":
-            return 39
-
+        if keycode == "space": return 32
+        elif keycode == "up arrow": return 38
+        elif keycode == "down arrow": return 40
+        elif keycode == "left arrow": return 37
+        elif keycode == "right arrow": return 39
         elif ord('a') <= ord(keycode) <= ord('z'):
             return ord(keycode) - ord('a') + ord('A')
         elif ord('0') <= ord(keycode) <= ord('9'):
             return ord(keycode)
-
         return -1
+
+    def add_costume(self, object_number_name, after):
+        self.ctms[object_number_name] = after
+
+    def get_costume(self, object_number, name):
+        return self.ctms[f"{object_number}::{name}"]
