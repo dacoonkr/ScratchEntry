@@ -111,7 +111,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args):
             else:
                 print(f"BLOCK MISS! {origin[cur]['opcode']}")
 
-        #print(f"Converted: Block '{cur}'")
+        print(f"Converted: Block '{cur}'")
 
         if origin[cur]["next"] == None: break
         cur = origin[cur]["next"]

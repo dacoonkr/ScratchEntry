@@ -14,9 +14,6 @@ def convert(cur, origin, libs):
     ret = blocks.getblock(libs.get_fn(proccode), "function_create", [])
     types = []
 
-    if cur == 'wWtIT8Ezrhg*UgIdZ,)%':
-        print(cur)
-
     while True:
         st = proccode.find("%s")
         nu = proccode.find("%n")
@@ -42,7 +39,7 @@ def convert(cur, origin, libs):
 
     fn_args = {}
     for x in range(len(args)):
-        fn_args[names[x]] = arglists[x]
+        fn_args[names[x]] = arglists[x + 1]
     
     blockids = {}
     for i in origin:
