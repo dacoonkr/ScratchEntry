@@ -67,6 +67,11 @@ def chunkTrace(cur, blockids, origin, libs, fn_args, object_number):
                             params.append(before)
                     elif x[0:2] == '!!':
                         params.append(libs.get_brd(origin[cur]["fields"]["BROADCAST_OPTION"][1]))
+                    elif x[0] == '>':
+                        data = origin[origin[cur]["inputs"]["CLONE_OPTION"][1]]["fields"]["CLONE_OPTION"][0]
+                        if data == "_myself_": data = "self"
+                        else: data = libs.get_spt(data)
+                        params.append(data)
                     elif x[0] == '!':
                         params.append(libs.get_brd(origin[cur]["inputs"]["BROADCAST_INPUT"][1][2]))
                     elif x[0] == '^':

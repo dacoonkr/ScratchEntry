@@ -1,12 +1,14 @@
 :header
 
 /event_whenflagclicked when_run_button_click
-/event_whenbroadcastreceived when_message_cast !!BROADCAST_OPTION
+/event_whenbroadcastreceived when_message_cast &NULL !!BROADCAST_OPTION
 /procedures_definition dump
+/control_start_as_clone when_clone_start
 
 :direct
 
 /event_broadcast message_cast !BROADCAST_INPUT
+/event_broadcastandwait message_cast_wait !BROADCAST_INPUT
 
 /motion_gotoxy locate_xy X Y
 /motion_glidesecstoxy locate_xy_time SECS X Y
@@ -15,6 +17,7 @@
 /motion_changeyby move_y DY
 /motion_sety locate_y Y
 /motion_movesteps move_direction STEPS
+/motion_pointindirection rotate_absolute DIRECTION
 
 /looks_show show
 /looks_hide hide
@@ -43,6 +46,9 @@
 
 /control_wait wait_second DURATION
 
+/control_delete_this_clone delete_clone
+/control_create_clone_of create_clone >CLONE_OPTION &NULL
+
 /pen_clear brush_erase_all
 /pen_stamp brush_stamp
 /pen_penDown start_drawing
@@ -67,7 +73,9 @@
 /operator_multiply calc_basic NUM1 "MULTI NUM2
 /operator_divide calc_basic NUM1 "DIVIDE NUM2
 
-/operator_mathop calc_operation &NULL NUM &NULL #OPERATOR;{"sqrt":"root","ceiling":"ceil"}
+/operator_mod quotient_and_mod &NULL NUM1 &NULL NUM2 &NULL "MOD
+
+/operator_mathop calc_operation &NULL NUM &NULL #OPERATOR;{"sqrt":"root","ceiling":"ceil","atan":"atan_radian","asin":"asin_radian","acos":"acos_radian"}
 /operator_round calc_operation &NULL NUM &NULL "round
 
 /operator_equals boolean_basic_operator OPERAND1 "EQUAL OPERAND2
@@ -78,11 +86,18 @@
 /operator_or boolean_and_or OPERAND1 "OR OPERAND2
 /operator_and boolean_and_or OPERAND1 "AND OPERAND2
 
-/operator_random calc_rand  &NULL FROM &NULL TO
+
+/operator_random calc_rand &NULL FROM &NULL TO
 
 /operator_letter_of char_at &NULL STRING &NULL LETTER
 
 /looks_costumenumbername coordinate_object &NULL "self &NULL #NUMBER_NAME;{"name":"picture_name","index":"picture_index"}
+
+/motion_direction coordinate_object &NULL "self &NULL "rotation
+/motion_xposition coordinate_object &NULL "self &NULL "x
+/motion_yposition coordinate_object &NULL "self &NULL "y
+
+/sensing_timer get_project_timer_value
 
 /sensing_touchingobject reach_something &NULL *TOUCHINGOBJECTMENU
 /sensing_keypressed is_press_some_key *KEY_OPTION
