@@ -52,6 +52,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args, object_number):
             ret.append(getblock(blockids[cur], f"func_{fnid}", params + [None]))
         else:
             found = libs.find(origin[cur]["opcode"])
+            
             if found != None:
                 params = []
                 for x in found["params"]:
@@ -92,7 +93,9 @@ def chunkTrace(cur, blockids, origin, libs, fn_args, object_number):
                         params.append(None)
                     else:
                         d = paramTrace(origin[cur]["inputs"][x], blockids, origin, libs, fn_args, object_number)
+                        if type(d) == list: d = d[0]
                         params.append(d)
+
                 if found["type"] == "direct" or found["type"] == "operator" or found["type"] == "header":
                     if found["code"] == "boolean_not":
                         ret.append(getblock(blockids[cur], found["code"], params[1] + [None]))
@@ -111,7 +114,7 @@ def chunkTrace(cur, blockids, origin, libs, fn_args, object_number):
                             else: substk2 = paramTrace(origin[cur]["inputs"]["SUBSTACK2"], blockids, origin, libs, fn_args, object_number)
                         if params == [[]]:
                             print(f"stop by {cur}")
-                        ret.append(getblock(blockids[cur], found["code"], [params[0][0], None], statement = [substk, substk2]))
+                        ret.append(getblock(blockids[cur], found["code"], [params[0], None], statement = [substk, substk2]))
                     else:
                         ret.append(getblock(blockids[cur], found["code"], params + [None], statement = [substk]))
 
@@ -144,7 +147,6 @@ def paramTrace(inputs, blockids, origin, libs, fn_args, object_number):
             return ret
         else:
             ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args, object_number)
-            if len(ret) == 0: return []
             return ret[0]
     elif inputs[0] == 2:
         ret = chunkTrace(inputs[1], blockids, origin, libs, fn_args, object_number)
