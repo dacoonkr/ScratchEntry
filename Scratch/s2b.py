@@ -1,14 +1,16 @@
 import BLL.bll as BLL
 import BLL.util as UTIL
+import Scratch.s2b_block as BLOCK
 
 def s2b(json):
     out = BLL.BLLfile()
     id_gen = UTIL.short_ID_generator()
     id_map = dict()
+    objs_map = dict()
     for cur in json["targets"]:
         #오브젝트 파싱
         obj = BLL.BLLobj()
-        obj._id = id_gen.new_id()
+        obj._id = objs_map[cur["name"]] = id_gen.new_id()
         obj._displayname = cur["name"]
         obj._shape_idx = cur["currentCostume"]
         obj._order = cur["layerOrder"]
@@ -20,9 +22,8 @@ def s2b(json):
         
         #모양 파싱
         for costume in cur["costumes"]:
-            id_map[costume["assetId"]] = id_gen.new_id()
             src = BLL.BLLsrc()
-            src._id = id_map[costume["assetId"]]
+            src._id = id_map[costume["assetId"]] = id_gen.new_id()
             src._type = "img"
             src._filepath = id_map[costume["assetId"]] + "." + costume["dataFormat"]
             src._center = [costume["rotationCenterX"], costume["rotationCenterY"]]
@@ -31,9 +32,8 @@ def s2b(json):
 
         #소리 파싱
         for sound in cur["sounds"]:
-            id_map[sound["assetId"]] = id_gen.new_id()
             src = BLL.BLLsrc()
-            src._id = id_map[sound["assetId"]]
+            src._id = id_map[sound["assetId"]] = id_gen.new_id()
             src._type = "aud"
             src._filepath = id_map[sound["assetId"]] + "." + sound["dataFormat"]
             obj._srcs.append(src._id)
@@ -41,9 +41,8 @@ def s2b(json):
 
         #파생 변수 파싱
         for var_key in cur["variables"]:
-            id_map[var_key] = id_gen.new_id()
             var = BLL.BLLvar()
-            var._id = id_map[var_key]
+            var._id = id_map[var_key] = id_gen.new_id()
             var._displayname = cur["variables"][var_key][0]
             var._type = "var"
             var._initial = cur["variables"][var_key][1]
@@ -55,9 +54,8 @@ def s2b(json):
             
         #파생 리스트 파싱
         for var_key in cur["lists"]:
-            id_map[var_key] = id_gen.new_id()
             var = BLL.BLLvar()
-            var._id = id_map[var_key]
+            var._id = id_map[var_key] = id_gen.new_id()
             var._displayname = cur["lists"][var_key][0]
             var._type = "list"
             var._initial = cur["lists"][var_key][1]
@@ -69,14 +67,18 @@ def s2b(json):
 
         #파생 신호 파싱
         for var_key in cur["broadcasts"]:
-            id_map[var_key] = id_gen.new_id()
             cast = BLL.BLLcast()
-            cast._id = id_map[var_key]
+            cast._id = id_map[var_key] = id_gen.new_id()
             cast._displayname = cur["broadcasts"][var_key]
             out._casts.append(cast)
 
-        #파생 블록 파싱
-
         out._objs.append(obj)
 
+    for cur in json["targets"]:
+        #파생 블록 파싱
+        for block in cur["blocks"]:
+            if cur["blocks"][block]["topLevel"]:
+                blocks = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
+                out.find_obj(cur["name"])._codes.append(blocks)
+            
     return out, id_map

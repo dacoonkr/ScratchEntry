@@ -5,6 +5,10 @@ class BLLfile:
         self._global_srcs = [] #src
         self._vars = [] #var
         self._casts = [] #cast
+    def find_obj(self, displayname):
+        for i in self._objs:
+            if i._displayname == displayname:
+                return i
 
 class BLLobj:
     def __init__(self):
@@ -17,6 +21,26 @@ class BLLobj:
         self._position = [0, 0]
         self._size_percent = 100
         self._direction = 90
+        self._codes = [] #list[BBLblocks]
+
+class BLLblocks:
+    def __init__(self):
+        self._blocks = [] #list[BBLblock]
+
+class BLLblock:
+    def __init__(self):
+        self._id = ""
+
+        self._is_literal = False
+        self._literal_value = ""
+
+        self._command = ""
+        self._param = dict() #값, statement포함
+        self._field = dict() #선택
+
+    def literal(self, value):
+        self._is_literal = True
+        self._literal_value = value
 
 class BLLsrc:
     def __init__(self):
