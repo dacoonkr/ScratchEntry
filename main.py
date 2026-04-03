@@ -1,6 +1,7 @@
 import Filesystem.file as FS
 import Scratch.s2b as S2B
 import Entry.b2e as B2E
+import BLL.bll_logger as LOGGER
 
 import sys
 
@@ -28,11 +29,13 @@ if __name__ == "__main__":
         bll, id_map = S2B.s2b(src_json)
         bll._name = arg_in[:-4]
         FS.file_move_s2b(id_map, file, ".out/bll")
-        print("BLL로의 변환이 완료되었습니다.")
+        print("SB3 → BLL 변환이 완료되었습니다.")
     
     if arg_in.endswith(".ent"):
         pass
         #구현 예정
+
+    LOGGER.stats(bll)
 
     #아웃풋
     if arg_out.endswith(".sb3"):
@@ -40,10 +43,10 @@ if __name__ == "__main__":
         #구현 예정
     
     if arg_out.endswith(".ent"):
-        ent = B2E.b2e(bll)
+        ent = B2E.b2e(bll, ".out/bll")
         FS.file_move_b2e(".out/bll", ".out/ent")
         FS.make_ent(ent, ".out/ent", arg_out)
-        print("ENT로의 변환이 완료되었습니다.")
+        print("BLL → ENT 변환이 완료되었습니다.")
 
     if arg_out.endswith(".exe"):
         pass

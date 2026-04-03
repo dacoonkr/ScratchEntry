@@ -2,10 +2,11 @@ class BLLfile:
     def __init__(self, id_gen):
         self._name = ""
         self._objs = [] #obj
-        self._global_srcs = [] #src
+        self._global_srcs = {} #id:src
         self._vars = [] #var
         self._casts = [] #cast
         self._id_gen = id_gen
+        self._stat_block_cnt = 0
         
     def find_obj(self, displayname):
         for i in self._objs:
@@ -13,7 +14,8 @@ class BLLfile:
                 return i
 
 class BLLobj:
-    def __init__(self):
+    def __init__(self, bll):
+        self._parent: BLLfile = bll
         self._id = ""
         self._displayname = ""
         self._shape_idx = 1 #1-base
@@ -47,6 +49,7 @@ class BLLblock:
 class BLLsrc:
     def __init__(self):
         self._id = ""
+        self._displayname = ""
         self._type = "" #aud/img
         self._filepath = ""
         self._center = [0, 0] #todo, 회전중심이자, 좌표이동 시 중심 

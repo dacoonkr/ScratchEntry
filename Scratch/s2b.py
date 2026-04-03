@@ -9,7 +9,7 @@ def s2b(json):
     objs_map = dict()
     for cur in json["targets"]:
         #오브젝트 파싱
-        obj = BLL.BLLobj()
+        obj = BLL.BLLobj(out)
         obj._id = objs_map[cur["name"]] = id_gen.new_id()
         obj._displayname = cur["name"]
         obj._shape_idx = cur["currentCostume"]
@@ -24,20 +24,22 @@ def s2b(json):
         for costume in cur["costumes"]:
             src = BLL.BLLsrc()
             src._id = id_map[costume["assetId"]] = id_gen.new_id()
+            src._displayname = costume["name"]
             src._type = "img"
             src._filepath = id_map[costume["assetId"]] + "." + costume["dataFormat"]
             src._center = [costume["rotationCenterX"], costume["rotationCenterY"]]
             obj._srcs.append(src._id)
-            out._global_srcs.append(src)
+            out._global_srcs[src._id] = src
 
         #소리 파싱
         for sound in cur["sounds"]:
             src = BLL.BLLsrc()
             src._id = id_map[sound["assetId"]] = id_gen.new_id()
+            src._displayname = sound["name"]
             src._type = "aud"
             src._filepath = id_map[sound["assetId"]] + "." + sound["dataFormat"]
             obj._srcs.append(src._id)
-            out._global_srcs.append(src)
+            out._global_srcs[src._id] = src
 
         #파생 변수 파싱
         for var_key in cur["variables"]:
@@ -78,7 +80,8 @@ def s2b(json):
         #파생 블록 파싱
         for block in cur["blocks"]:
             if cur["blocks"][block]["topLevel"]:
-                blocks = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
+                blocks, stat_cnt = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
+                out._stat_block_cnt += stat_cnt
                 out.find_obj(cur["name"])._codes.append(blocks)
             
     return out, id_map

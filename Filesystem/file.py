@@ -1,5 +1,8 @@
 import zipfile, tarfile, sys, json
 import pickle, os, shutil
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+from PIL import Image
 import Entry.ent as ENT
 
 def to_dict(obj):
@@ -38,8 +41,30 @@ def file_move_s2b(id_map, inputf, output_path):
 #파일 옮기기 BLL -> Scratch
 def file_move_b2e(input_path, output_path):
     for i in os.listdir(input_path):
-        os.makedirs(f'{output_path}/temp/{i[0:2]}/{i[2:4]}', exist_ok = True)
-        shutil.copy(f'{input_path}/{i}', f'{output_path}/temp/{i[0:2]}/{i[2:4]}/{i}')
+        if i[-3:] in ["png", "jpg"]:
+            os.makedirs(f'{output_path}/temp/{i[0:2]}/{i[2:4]}/image', exist_ok = True)
+            shutil.copy(f'{input_path}/{i}', f'{output_path}/temp/{i[0:2]}/{i[2:4]}/image/{i}')
+        elif i[-3:] in ["svg"]:
+            os.makedirs(f'{output_path}/temp/{i[0:2]}/{i[2:4]}/image', exist_ok = True)
+            shutil.copy(f'{input_path}/{i}', f'{output_path}/temp/{i[0:2]}/{i[2:4]}/image/{i}')
+            drawing = svg2rlg(f'{input_path}/{i}')
+            i = i[:-3] + ".png"
+        elif i[-3:] in ["wav", "mp3"]:
+            os.makedirs(f'{output_path}/temp/{i[0:2]}/{i[2:4]}/sound', exist_ok = True)
+            shutil.copy(f'{input_path}/{i}', f'{output_path}/temp/{i[0:2]}/{i[2:4]}/sound/{i}')
+
+#이미지 get pixel size
+def image_getsize(input_path, id):
+    if id.endswith(".svg"):
+        img = svg2rlg(f'{input_path}/{id}')
+        return img.width, img.height
+    else: #.png .jpg
+        img = Image.open(f'{input_path}/{id}')
+    return img.size
+
+#오디오 get duration
+def audio_getsize(input_path, id):
+    return 1 #일단 되나 테스트해보고, 나중에 수정
 
 def make_ent(ent: ENT.ENTfile, input_path, output_path):
     open(f'{input_path}/temp/project.json', 'w').write(json.dumps(ent._json))

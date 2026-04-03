@@ -2,6 +2,7 @@ import BLL.bll as BLL
 
 def code_search(id_gen, id_map, json, cur_id):
     blocks = BLL.BLLblocks()
+    stat_cnt = 0
     while cur_id != None:
         block = BLL.BLLblock()
         block._id = id_gen.new_id()
@@ -10,11 +11,13 @@ def code_search(id_gen, id_map, json, cur_id):
             param_v = json[cur_id]["inputs"][param][1]
             if type(param_v) == str:
                 #새 블럭이 있다 -> BLLblocks타입
-                block._param[param] = code_search(id_gen, id_map, json, param_v)
+                block._param[param], cnt = code_search(id_gen, id_map, json, param_v)
+                stat_cnt += cnt
             else: #리터럴이 있다 -> 단일 BLLblock타입
                 tmp = BLL.BLLblock()
                 tmp.literal(param_v[1])
                 block._param[param] = tmp
         blocks._blocks.append(block)
+        stat_cnt += 1
         cur_id = json[cur_id]["next"]
-    return blocks
+    return blocks, stat_cnt

@@ -25,8 +25,8 @@ class var_position_generator:
 
     def new_var(self):
         self._var_n += 1
-        return -230, -43 - 24 * self._var_n
+        return -230, -140 + 24 * self._var_n
 
     def new_list(self):
         self._list_n += 1
-        return 120, -43 - 24 * _list_n
+        return 120, -140 + 24 * self._list_n
