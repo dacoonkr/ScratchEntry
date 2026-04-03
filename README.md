@@ -4,7 +4,10 @@
 ## 구조도
 ![](doc/structure.png)
 
-## CLI 사용법
+## CLI의 사용
+
+### MOD 1: 스크래치 -> 엔트리
+[주의사항 확인](/doc/warning_s2b.md)
 ```
-python main.py mode=a1 input=in.sb3 output=out.bll
+python main.py input=in.sb3 output=out.ent
 ```
