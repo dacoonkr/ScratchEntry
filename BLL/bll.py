@@ -1,10 +1,12 @@
 class BLLfile:
-    def __init__(self):
+    def __init__(self, id_gen):
         self._name = ""
         self._objs = [] #obj
         self._global_srcs = [] #src
         self._vars = [] #var
         self._casts = [] #cast
+        self._id_gen = id_gen
+        
     def find_obj(self, displayname):
         for i in self._objs:
             if i._displayname == displayname:

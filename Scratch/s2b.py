@@ -3,8 +3,8 @@ import BLL.util as UTIL
 import Scratch.s2b_block as BLOCK
 
 def s2b(json):
-    out = BLL.BLLfile()
     id_gen = UTIL.short_ID_generator()
+    out = BLL.BLLfile(id_gen)
     id_map = dict()
     objs_map = dict()
     for cur in json["targets"]:

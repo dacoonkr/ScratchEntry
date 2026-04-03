@@ -1,13 +1,6 @@
 import zipfile, tarfile, sys, json
 import pickle, os, shutil
-
-#make tar
-def make_tar(path, tar_name):
-    with tarfile.open(tar_name, "w:gz") as tar_handle:
-        for root, _, files in os.walk(path):
-            for file in files:
-                tar_handle.add(os.path.join(root, file))
-#make_tar('temp', 'output/output.ent')
+import Entry.ent as ENT
 
 def to_dict(obj):
     if isinstance(obj, (str, int, float, bool)) or obj is None:
@@ -41,3 +34,17 @@ def file_move_s2b(id_map, inputf, output_path):
             continue
         inputf.getinfo(i).filename = id_map[i[:-4]] + i[-4:] #확장자를 제외하고 id매핑
         inputf.extract(i, f"{output_path}")
+
+#파일 옮기기 BLL -> Scratch
+def file_move_b2e(input_path, output_path):
+    for i in os.listdir(input_path):
+        os.makedirs(f'{output_path}/temp/{i[0:2]}/{i[2:4]}', exist_ok = True)
+        shutil.copy(f'{input_path}/{i}', f'{output_path}/temp/{i[0:2]}/{i[2:4]}/{i}')
+
+def make_ent(ent: ENT.ENTfile, input_path, output_path):
+    open(f'{input_path}/temp/project.json', 'w').write(json.dumps(ent._json))
+    path = f'{input_path}'
+    with tarfile.open(output_path, "w:gz") as tar_handle:
+        for root, _, files in os.walk(path):
+            for file in files:
+                tar_handle.add(os.path.join(root, file), os.path.join(root[len(path):], file))

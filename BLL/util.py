@@ -17,3 +17,16 @@ class short_ID_generator:
             id_n[1] = 0
             id_n[0] += 1
         return id_s[id_n[0]] + id_s[id_n[1]] + id_s[id_n[2]] + id_s[id_n[3]]
+
+class var_position_generator:
+    def __init__(self):
+        self._var_n = 0
+        self._list_n = 0
+
+    def new_var(self):
+        self._var_n += 1
+        return -230, -43 - 24 * self._var_n
+
+    def new_list(self):
+        self._list_n += 1
+        return 120, -43 - 24 * _list_n

@@ -1,7 +1,6 @@
 import BLL.bll as BLL
 
 def code_search(id_gen, id_map, json, cur_id):
-    print(cur_id)
     blocks = BLL.BLLblocks()
     while cur_id != None:
         block = BLL.BLLblock()
