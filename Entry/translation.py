@@ -52,11 +52,26 @@ class translator:
                 else:
                     key_parsed, key = True, rule_from_bll_parse(rule)
 
-    def format(self, text, bll: BLL.BLLfile, format_rule):
+    def format(self, text, bll: BLL.BLLfile, obj: BLL.BLLobj, format_rule):
         out = text
         for i in format_rule.strip('[]').split(','):
             if i == "%o":
                 out = bll.find_obj(out)._id
+            elif i == "%k":
+                if out == "left arrow": out = "37"
+                elif out == "up arrow": out = "38"
+                elif out == "right arrow": out = "39"
+                elif out == "down arrow": out = "40"
+                elif out == "space": out = "32"
+                else: out = str(ord(out.upper()))
+            elif i == "%b":
+                out = bll.find_cast(out)._id
+            elif i == "%B":
+                src = bll.find_obj("Stage").find_src(out)
+                out = bll.find_cast(f"scene_changeto_{src._id}")._id
+            elif i == "%c":
+                out = obj.find_src(out)._id
+            elif len(i) == 0: pass
             else:
                 bef, aft = i.split(':')
                 if out == bef:
@@ -64,14 +79,23 @@ class translator:
                     break
         return out
 
-    def translation(self, bll: BLL.BLLfile, x, y, block: BLL.BLLblock):
+    def translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock):
         if block._is_literal:
-            return self.block_build(bll, x, y, "text", block._literal_value, [], dict())
+            return self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())
+        if not block._command in self.rules:
+            print("Missing Definition:", block._command)
+            return self.block_build(bll, obj, x, y, "show", 0, [], dict())
         rule, in_param = self.rules[block._command], dict() #key:
         for param in rule[0]._params:
-            if param.startswith("@"):
+            if param.startswith("@@"):
+                param = param[2:]
+                in_param[param] = block._param[param]._literal_value #str
+            elif param.startswith("@"):
                 param = param[1:]
                 in_param[param] = block._param[param]._blocks[0]._field[param] #str
+            elif param.startswith("&"):
+                param = param[1:]
+                in_param[param] = block._field[param] #str
             elif param.startswith("*"): #STATEMENT
                 param = param[1:] #작업 예정
             elif type(block._param[param]) == BLL.BLLblock: #리터럴
@@ -79,10 +103,10 @@ class translator:
             elif type(block._param[param]) == BLL.BLLblocks: #단일블럭
                 in_param[param] = block._param[param]._blocks[0] #BLLblock
                 
-        out = self.block_build(bll, x, y, rule[1]._type, 0, rule[1]._params, in_param)
+        out = self.block_build(bll, obj, x, y, rule[1]._type, 0, rule[1]._params, in_param)
         return out
 
-    def block_build(self, bll: BLL.BLLfile, x, y, command, literal_value, params, in_param: dict):
+    def block_build(self, bll: BLL.BLLfile, obj, x, y, command, literal_value, params, in_param: dict):
         out = dict()
         out["id"] = bll._id_gen.new_id()
         out["movable"] = None
@@ -108,14 +132,19 @@ class translator:
                     param = param[:param.find('%')]
                 if param == "&!": pass
                 elif param.startswith("&&"):
-                    child = self.block_build(bll, 0, 0, "text", param[2:], [], dict())
+                    child = self.block_build(bll, obj, 0, 0, "text", param[2:], [], dict())
                 elif param.startswith("&"):
                     child = param[1:]
                 elif param.startswith("@"):
-                    child = self.format(in_param[param[1:]], bll, format_rule)
+                    child = self.format(in_param[param[1:]], bll, obj, format_rule)
+                elif param.startswith("?"):
+                    if param == "?b":
+                        child = bll.find_obj("Stage")._id
+                    elif param == "?B":
+                        child = bll.find_cast(f"scene_changenext")._id
                 else: #statement
-                    child = self.translation(bll, 0, 0, in_param[param])
+                    child = self.translation(bll, obj, 0, 0, in_param[param])
                 out["params"].append(child)
             elif type(param) == rule_to_ent:
-                out["params"].append(self.block_build(bll, 0, 0, param._type, 0, param._params, in_param))
+                out["params"].append(self.block_build(bll, obj, 0, 0, param._type, 0, param._params, in_param))
         return out

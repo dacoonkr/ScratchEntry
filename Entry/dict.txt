@@ -1,6 +1,8 @@
 #작성 시 문법
 #스크래치에서 인식 {종류:파람1:파람2>필드1:필드2}
 # @    : 파람 중 _menu로 이어지는 것은, 필드값을 바로 불러와 문자열 취급
+# @@   : 파람 중 리터럴인 것을 문자열 취급
+# &    : 필드 문자열
 # *    : 파람 중 STATEMENT
 
 #엔트리에서 출력
@@ -9,10 +11,35 @@
 # &~~  : 필드 문자열값
 # &&~~ : number 리터럴 블럭 생성
 # @~~  : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
-# %[a:b,c:d]  : 자동 변환 매핑 (%o: 오브젝트 포인팅)
+# ?b   : 스테이지 오브젝트 id
+# ?B   : 다음 배경 전환 신호
+# %[a:b,c:d]  : 포맷팅
+#    %o: 오브젝트 포인터
+#    %k: 키 셀렉터
+#    %b: 신호 셀렉터
+#    %B: 배경 전환 신호 셀렉터
+#    %c: shape 셀렉터
 
 {event_whenflagclicked}
 {when_run_button_click}
+
+{event_whenkeypressed:&KEY_OPTION}
+{when_some_key_pressed:&!:@KEY_OPTION%[%k]}
+
+{event_whenbroadcastreceived:&BROADCAST_OPTION}
+{when_message_cast:&!:@BROADCAST_OPTION%[%b]}
+
+{event_whenthisspriteclicked}
+{when_object_click}
+
+{event_broadcast:@@BROADCAST_INPUT}
+{message_cast:@BROADCAST_INPUT%[%b]}
+
+{event_broadcastandwait:@@BROADCAST_INPUT}
+{message_cast_wait:@BROADCAST_INPUT%[%b]}
+
+{event_whenbackdropswitchesto:&BACKDROP}
+{when_message_cast:&!:@BACKDROP%[%B]}
 
 {motion_movesteps:STEPS}
 {move_direction:STEPS}
@@ -30,7 +57,7 @@
 {locate_xy:X:Y}
 
 {motion_glideto:SECS:@TO}
-{locate_object_time:SECS:@TO%[_mouse_:mouse,!o]}
+{locate_object_time:SECS:@TO%[_mouse_:mouse,%o]}
 
 {motion_glidesecstoxy:SECS:X:Y}
 {move_xy_time:SECS:X:Y}
@@ -39,7 +66,7 @@
 {rotate_absolute:DIRECTION}
 
 {motion_pointtowards:@TOWARDS}
-{see_angle_object:@TOWARDS%[_mouse_:mouse,!o]}
+{see_angle_object:@TOWARDS%[_mouse_:mouse,%o]}
 
 {motion_changexby:DX}
 {move_x:DX}
@@ -67,3 +94,60 @@
 
 {looks_say:MESSAGE}
 {dialog:MESSAGE:&speak}
+
+{looks_think:MESSAGE}
+{dialog:MESSAGE:&think}
+
+{looks_sayforsecs:MESSAGE:SECS}
+{dialog_time:MESSAGE:SECS:&speak}
+
+{looks_thinkforsecs:MESSAGE:SECS}
+{dialog_time:MESSAGE:SECS:&think}
+
+{looks_switchcostumeto:@COSTUME}
+{change_to_some_shape:{get_pictures:@COSTUME%[%c]}}
+
+{looks_switchbackdropto:@BACKDROP}
+{message_cast:@BACKDROP%[%B]}
+
+{looks_nextcostume}
+{change_to_next_shape:&next}
+
+{looks_nextbackdrop}
+{message_cast:?B}
+
+{looks_changesizeby:CHANGE}
+{change_scale_size:CHANGE}
+
+{looks_setsizeto:SIZE}
+{set_scale_size:SIZE}
+
+{looks_changeeffectby:CHANGE:&EFFECT}
+{add_effect_amount:@EFFECT%[COLOR:color,BRIGHTNESS:brightness,GHOST:transparency]:CHANGE}
+
+{looks_seteffectto:VALUE:&EFFECT}
+{change_effect_amount:@EFFECT%[COLOR:color,BRIGHTNESS:brightness,GHOST:transparency]:VALUE}
+
+{looks_cleargraphiceffects}
+{erase_all_effects}
+
+{looks_gotofrontback:&FRONT_BACK}
+{change_object_index:@FRONT_BACK%[front:FRONT,back:BACK]}
+
+{looks_goforwardbackwardlayers:NUM:&FORWARD_BACKWARD}
+{change_object_index:@FORWARD_BACKWARD%[forward:FORWARD,backward:BACKWARD]}
+
+{looks_show}
+{show}
+
+{looks_hide}
+{hide}
+
+{looks_size}
+{coordinate_object:&!:&self:&!:&size}
+
+{looks_costumenumbername:&NUMBER_NAME}
+{coordinate_object:&!:&self:&!:@NUMBER_NAME%[number:picture_index,name:picture_name]}
+
+{looks_backdropnumbername:&NUMBER_NAME}
+{coordinate_object:&!:?b:&!:@NUMBER_NAME%[number:picture_index,name:picture_name]}

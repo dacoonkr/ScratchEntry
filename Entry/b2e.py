@@ -18,14 +18,22 @@ def b2e(bll: BLL.BLLfile, input_path):
         out._json["variables"].append(var_build(var_pos_gen, var))
     for obj in bll._objs:
         out._json["objects"].append(obj_build(bll, obj, scene, input_path))
+    for cast in bll._casts:
+        out._json["messages"].append(broadcast_build(bll, cast))
     out._json["interface"]["object"] = bll._objs[0]._id
+    return out
+
+def broadcast_build(bll: BLL.BLLfile, cast: BLL.BLLcast):
+    out = dict()
+    out["id"] = cast._id
+    out["name"] = cast._displayname
     return out
 
 def obj_build(bll: BLL.BLLfile, obj: BLL.BLLobj, scene, input_path):
     out = dict()
     out["id"] = obj._id
     out["name"] = obj._displayname
-    out["script"] = json.dumps(BLOCK.code_build(bll, obj._codes))
+    out["script"] = json.dumps(BLOCK.code_build(bll, obj, obj._codes))
     out["objectType"] = "sprite"
     out["rotateMethod"] = "free"
     out["scene"] = scene

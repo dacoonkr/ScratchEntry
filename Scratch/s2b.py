@@ -30,6 +30,11 @@ def s2b(json):
             src._center = [costume["rotationCenterX"], costume["rotationCenterY"]]
             obj._srcs.append(src._id)
             out._global_srcs[src._id] = src
+            if cur["isStage"]:
+                cast = BLL.BLLcast()
+                cast._id = id_gen.new_id()
+                cast._displayname = f"scene_changeto_{src._id}"
+                out._casts.append(cast)
 
         #소리 파싱
         for sound in cur["sounds"]:
@@ -83,5 +88,10 @@ def s2b(json):
                 blocks, stat_cnt = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
                 out._stat_block_cnt += stat_cnt
                 out.find_obj(cur["name"])._codes.append(blocks)
-            
+    
+    cast = BLL.BLLcast()
+    cast._id = id_gen.new_id()
+    cast._displayname = f"scene_changenext"
+    out._casts.append(cast)
+
     return out, id_map
