@@ -30,3 +30,11 @@ class var_position_generator:
     def new_list(self):
         self._list_n += 1
         return 120, -140 + 24 * self._list_n
+
+class block_position_generator:
+    def __init__(self):
+        self._block_n = 0
+
+    def new_block(self):
+        self._block_n += 1
+        return 50 * self._block_n, 30

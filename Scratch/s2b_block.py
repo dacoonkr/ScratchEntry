@@ -17,6 +17,8 @@ def code_search(id_gen, id_map, json, cur_id):
                 tmp = BLL.BLLblock()
                 tmp.literal(param_v[1])
                 block._param[param] = tmp
+        for field in json[cur_id]["fields"]:
+            block._field[field] = json[cur_id]["fields"][field][0]
         blocks._blocks.append(block)
         stat_cnt += 1
         cur_id = json[cur_id]["next"]

@@ -1,0 +1,69 @@
+#작성 시 문법
+#스크래치에서 인식 {종류:파람1:파람2>필드1:필드2}
+# @    : 파람 중 _menu로 이어지는 것은, 필드값을 바로 불러와 문자열 취급
+# *    : 파람 중 STATEMENT
+
+#엔트리에서 출력
+#{종류:파람1:파람2} 단, 파람에 {}사용 가능
+# &!   : 필드 null값
+# &~~  : 필드 문자열값
+# &&~~ : number 리터럴 블럭 생성
+# @~~  : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
+# %[a:b,c:d]  : 자동 변환 매핑 (%o: 오브젝트 포인팅)
+
+{event_whenflagclicked}
+{when_run_button_click}
+
+{motion_movesteps:STEPS}
+{move_direction:STEPS}
+
+{motion_turnright:DEGREES}
+{rotate_relative:DEGREES}
+
+{motion_turnleft:DEGREES}
+{rotate_relative:{calc_basic:&&0:&MINUS:DEGREES}}
+
+{motion_goto:@TO}
+{locate:@TO%[_mouse_:mouse,%o]}
+
+{motion_gotoxy:X:Y}
+{locate_xy:X:Y}
+
+{motion_glideto:SECS:@TO}
+{locate_object_time:SECS:@TO%[_mouse_:mouse,!o]}
+
+{motion_glidesecstoxy:SECS:X:Y}
+{move_xy_time:SECS:X:Y}
+
+{motion_pointindirection:DIRECTION}
+{rotate_absolute:DIRECTION}
+
+{motion_pointtowards:@TOWARDS}
+{see_angle_object:@TOWARDS%[_mouse_:mouse,!o]}
+
+{motion_changexby:DX}
+{move_x:DX}
+
+{motion_setx:X}
+{locate_x:X}
+
+{motion_changeyby:DY}
+{move_y:DY}
+
+{motion_sety:Y}
+{locate_y:Y}
+
+{motion_ifonedgebounce}
+{bounce_wall}
+
+{motion_direction}
+{coordinate_object:&!:&self:&!:&rotation}
+
+{motion_xposition}
+{coordinate_object:&!:&self:&!:&x}
+
+{motion_yposition}
+{coordinate_object:&!:&self:&!:&y}
+
+{looks_say:MESSAGE}
+{dialog:MESSAGE:&speak}

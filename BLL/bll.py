@@ -38,9 +38,9 @@ class BLLblock:
         self._is_literal = False
         self._literal_value = ""
 
-        self._command = ""
-        self._param = dict() #값, statement포함
-        self._field = dict() #선택
+        self._command = "" #기본으로 스크래치쪽 명칭 사용, 그러나 비어있다면 엔트리 쪽 명칭(_cover_command) 사용
+        self._param = dict() #key: BLLblock or BLLblocks
+        self._field = dict() #key:str
 
     def literal(self, value):
         self._is_literal = True

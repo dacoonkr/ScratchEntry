@@ -3,6 +3,7 @@ import BLL.util as UTIL
 import Entry.ent as ENT
 import Filesystem.file as FS
 import Entry.b2e_block as BLOCK
+import json
 
 def b2e(bll: BLL.BLLfile, input_path):
     out = ENT.ENTfile()
@@ -16,15 +17,15 @@ def b2e(bll: BLL.BLLfile, input_path):
     for var in bll._vars:
         out._json["variables"].append(var_build(var_pos_gen, var))
     for obj in bll._objs:
-        out._json["objects"].append(obj_build(obj, scene, input_path))
+        out._json["objects"].append(obj_build(bll, obj, scene, input_path))
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
 
-def obj_build(obj: BLL.BLLobj, scene, input_path):
+def obj_build(bll: BLL.BLLfile, obj: BLL.BLLobj, scene, input_path):
     out = dict()
     out["id"] = obj._id
     out["name"] = obj._displayname
-    out["script"] = BLOCK.code_build(obj._codes)
+    out["script"] = json.dumps(BLOCK.code_build(bll, obj._codes))
     out["objectType"] = "sprite"
     out["rotateMethod"] = "free"
     out["scene"] = scene
@@ -46,8 +47,8 @@ def obj_build(obj: BLL.BLLobj, scene, input_path):
         "y": obj._position[1],
         "regX": sel_shape["dimension"]["width"] / 2,
         "regY": sel_shape["dimension"]["height"] / 2,
-        "scaleX": 1,
-        "scaleY": 1,
+        "scaleX": obj._size_percent / 100,
+        "scaleY": obj._size_percent / 100,
         "rotation": (obj._direction + 270) % 360,
         "direction": 90,
         "width": sel_shape["dimension"]["width"],
