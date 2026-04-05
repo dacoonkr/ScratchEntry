@@ -97,7 +97,12 @@ class translator:
                 param = param[1:]
                 in_param[param] = block._field[param] #str
             elif param.startswith("*"): #STATEMENT
-                param = param[1:] #작업 예정
+                param = param[1:]
+                out = []
+                if param in block._param:
+                    for cur in block._param[param]._blocks: #BLLblock
+                        out.append(self.translation(bll, obj, x, y, cur))
+                in_param[param] = out
             elif type(block._param[param]) == BLL.BLLblock: #리터럴
                 in_param[param] = block._param[param] #BLLblock
             elif type(block._param[param]) == BLL.BLLblocks: #단일블럭
@@ -125,6 +130,10 @@ class translator:
             return out
         for param in params:
             if type(param) == str:
+                if param.startswith("*"): #statement
+                    out["statements"].append(in_param[param[1:]])
+                    continue
+
                 child = None
                 format_rule = "[]"
                 if "%" in param:
@@ -142,7 +151,7 @@ class translator:
                         child = bll.find_obj("Stage")._id
                     elif param == "?B":
                         child = bll.find_cast(f"scene_changenext")._id
-                else: #statement
+                else:
                     child = self.translation(bll, obj, 0, 0, in_param[param])
                 out["params"].append(child)
             elif type(param) == rule_to_ent:

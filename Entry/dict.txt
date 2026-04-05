@@ -13,6 +13,7 @@
 # @~~  : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
 # ?b   : 스테이지 오브젝트 id
 # ?B   : 다음 배경 전환 신호
+# *~~  : STATEMENT
 # %[a:b,c:d]  : 포맷팅
 #    %o: 오브젝트 포인터
 #    %k: 키 셀렉터
@@ -151,3 +152,39 @@
 
 {looks_backdropnumbername:&NUMBER_NAME}
 {coordinate_object:&!:?b:&!:@NUMBER_NAME%[number:picture_index,name:picture_name]}
+
+{control_wait:DURATION}
+{wait_second:DURATION}
+
+{control_repeat:TIMES:*SUBSTACK}
+{repeat_basic:TIMES:*SUBSTACK}
+
+{control_forever:*SUBSTACK}
+{repeat_inf:*SUBSTACK}
+
+{control_if:CONDITION:*SUBSTACK}
+{_if:CONDITION:*SUBSTACK}
+
+{control_if_else:CONDITION:*SUBSTACK:*SUBSTACK2}
+{if_else:CONDITION:*SUBSTACK:*SUBSTACK2}
+
+{control_wait_until:CONDITION}
+{wait_until_true:CONDITION}
+
+{control_repeat_until:CONDITION:*SUBSTACK}
+{repeat_while_true:CONDITION:&until:*SUBSTACK}
+
+{control_stop:&STOP_OPTION}
+{stop_object:@STOP_OPTION%[this script:thisThread,other scripts in sprite:otherThread]}
+
+{control_start_as_clone}
+{when_clone_start}
+
+{control_create_clone_of:@CLONE_OPTION}
+{create_clone:@CLONE_OPTION%[_myself_:self,%o]}
+
+{control_delete_this_clone}
+{delete_clone}
+
+{sensing_mousedown}
+{is_clicked}
