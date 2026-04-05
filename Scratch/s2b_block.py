@@ -13,9 +13,13 @@ def code_search(id_gen, id_map, json, cur_id):
                 #새 블럭이 있다 -> BLLblocks타입
                 block._param[param], cnt = code_search(id_gen, id_map, json, param_v)
                 stat_cnt += cnt
-            else: #리터럴이 있다 -> 단일 BLLblock타입
+            else: #리터럴이 있다 -> 단일 BLLblock타입 #
                 tmp = BLL.BLLblock()
-                tmp.literal(param_v[1])
+                if param_v[0] == 12:
+                    tmp.literal("var", param_v[1])
+                elif param_v[0] == 13:
+                    tmp.literal("list", param_v[1])
+                else: tmp.literal("text", param_v[1])
                 block._param[param] = tmp
         for field in json[cur_id]["fields"]:
             block._field[field] = json[cur_id]["fields"][field][0]

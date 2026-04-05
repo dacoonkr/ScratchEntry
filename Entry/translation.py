@@ -56,6 +56,7 @@ class translator:
         out = text
         for i in format_rule.strip('[]').split(','):
             if i == "%o":
+                if out == "_stage_": out = "Stage"
                 out = bll.find_obj(out)._id
             elif i == "%k":
                 if out == "left arrow": out = "37"
@@ -71,6 +72,10 @@ class translator:
                 out = bll.find_cast(f"scene_changeto_{src._id}")._id
             elif i == "%c":
                 out = obj.find_src(out)._id
+            elif i == "%v":
+                out = bll.find_var("var", out)._id
+            elif i == "%l":
+                out = bll.find_var("list", out)._id
             elif len(i) == 0: pass
             else:
                 bef, aft = i.split(':')
@@ -81,7 +86,13 @@ class translator:
 
     def translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock):
         if block._is_literal:
-            return self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())
+            if block._literal_mode == "text":
+                return self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())
+            if block._literal_mode == "var":
+                return self.block_build(bll, obj, x, y, "get_variable", block._literal_value, [], dict())
+            if block._literal_mode == "list": #구현 예정
+                return self.block_build(bll, obj, x, y, "text", "", [], dict())
+                pass
         if not block._command in self.rules:
             print("Missing Definition:", block._command)
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
@@ -101,7 +112,7 @@ class translator:
                 out = []
                 if param in block._param:
                     for cur in block._param[param]._blocks: #BLLblock
-                        out.append(self.translation(bll, obj, x, y, cur))
+                        out.append(self.translation(bll, obj, 0, 0, cur))
                 in_param[param] = out
             elif type(block._param[param]) == BLL.BLLblock: #리터럴
                 in_param[param] = block._param[param] #BLLblock
@@ -127,6 +138,9 @@ class translator:
         out["type"] = command
         if command == "text":
             out["params"] = [str(literal_value)]
+            return out
+        if command == "get_variable":
+            out["params"] = [bll.find_var("var", literal_value)._id]
             return out
         for param in params:
             if type(param) == str:

@@ -18,6 +18,11 @@ class BLLfile:
             if i._displayname == displayname:
                 return i
 
+    def find_var(self, mode, displayname):
+        for i in self._vars:
+            if i._type == mode and i._displayname == displayname:
+                return i
+
 class BLLobj:
     def __init__(self, bll):
         self._parent: BLLfile = bll
@@ -46,14 +51,16 @@ class BLLblock:
         self._id = ""
 
         self._is_literal = False
+        self._literal_mode = "text" #text,var,list
         self._literal_value = ""
 
         self._command = ""
         self._param = dict() #key: BLLblock or BLLblocks
         self._field = dict() #key:str
 
-    def literal(self, value):
+    def literal(self, mode, value):
         self._is_literal = True
+        self._literal_mode = mode
         self._literal_value = value
 
 class BLLsrc:
