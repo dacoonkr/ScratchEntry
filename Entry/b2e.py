@@ -3,6 +3,7 @@ import BLL.util as UTIL
 import Entry.ent as ENT
 import Filesystem.file as FS
 import Entry.b2e_block as BLOCK
+import Entry.translation as TRANS
 import json
 
 def b2e(bll: BLL.BLLfile, input_path):
@@ -17,10 +18,35 @@ def b2e(bll: BLL.BLLfile, input_path):
     for var in bll._vars:
         out._json["variables"].append(var_build(var_pos_gen, var))
     for obj in bll._objs:
-        out._json["objects"].append(obj_build(bll, obj, scene, input_path))
+        obj, procedures = obj_build(bll, obj, scene, input_path)
+        out._json["objects"].append(obj)
+        for procedure in procedures:
+            out._json["functions"].append(function_build(bll, obj, procedure))
     for cast in bll._casts:
         out._json["messages"].append(broadcast_build(bll, cast))
     out._json["interface"]["object"] = bll._objs[0]._id
+    return out
+
+def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedure):
+    out = dict()
+    out["id"] = procedure[0]._id
+    out["type"] = "normal"
+    out["localVariables"] = []
+    out["useLocalVariables"] = False
+    trans: TRANS.translator = TRANS.translator()
+    param_block = None
+    for i in procedure[0]._arguments[::-1]:
+        type_str = "function_field_string" if i[0] == "s" else "function_field_boolean"
+        type_param = "stringParam_" if i[0] == "s" else "booleanParam_"
+        if i[1] in bll._procedure_var_map:
+            param_block = trans.block_build(bll, obj, 0, 0, type_str, "", ["A", "B"], {
+                "A": trans.block_build(bll, obj, 0, 0, type_param + bll._procedure_var_map[i[1]], "", [], dict()),
+                "B": param_block
+            })
+    out["content"] = json.dumps([[trans.block_build(bll, obj, 0, 0, "function_create", "", ["A", "*B"], {
+        "A": param_block,
+        "B": procedure[1:]
+    })]])
     return out
 
 def broadcast_build(bll: BLL.BLLfile, cast: BLL.BLLcast):
@@ -33,7 +59,8 @@ def obj_build(bll: BLL.BLLfile, obj: BLL.BLLobj, scene, input_path):
     out = dict()
     out["id"] = obj._id
     out["name"] = obj._displayname
-    out["script"] = json.dumps(BLOCK.code_build(bll, obj, obj._codes))
+    script, procedures = BLOCK.code_build(bll, obj, obj._codes)
+    out["script"] = json.dumps(script)
     out["objectType"] = "sprite"
     out["rotateMethod"] = "free"
     out["scene"] = scene
@@ -64,7 +91,7 @@ def obj_build(bll: BLL.BLLfile, obj: BLL.BLLobj, scene, input_path):
         "font": "undefinedpx ",
         "visible": obj._visible
     }
-    return out
+    return out, procedures
 
 def shape_build(src: BLL.BLLsrc, input_path):
     out = dict()

@@ -93,6 +93,27 @@ class translator:
             if block._literal_mode == "list": #구현 예정
                 return self.block_build(bll, obj, x, y, "text", "", [], dict())
                 pass
+        if block._command == "argument_reporter_string_number" or block._command == "argument_reporter_boolean": #함수 인자 값
+            value = block._field["VALUE"]
+            if value not in bll._procedure_var_map:
+                bll._procedure_var_map[value] = bll._id_gen.new_id()
+            type_param = "stringParam_" if block._command[18] == "s" else "booleanParam_"
+            return self.block_build(bll, obj, 0, 0, type_param + bll._procedure_var_map[value], "", [], dict())
+        if block._command == "procedures_call": #함수 호출
+            value = f"{obj._id}:{block._mutation['proccode']}"
+            if value not in bll._procedures_map:
+                bll._procedures_map[value] = bll._id_gen.new_id()
+            params, in_param = [], dict()
+            cnt = 0
+            for param in block._param:
+                params.append(cnt)
+                if type(block._param[param]) == BLL.BLLblock: #리터럴
+                    in_param[cnt] = block._param[param] #BLLblock
+                if type(block._param[param]) == BLL.BLLblocks: #단일블럭
+                    in_param[cnt] = block._param[param]._blocks[0] #BLLblock
+                cnt += 1
+            return self.block_build(bll, obj, x, y, f"func_{bll._procedures_map[value]}", 0, params, in_param)
+            
         if not block._command in self.rules:
             print("Missing Definition:", block._command)
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
@@ -166,8 +187,12 @@ class translator:
                     elif param == "?B":
                         child = bll.find_cast(f"scene_changenext")._id
                 else:
-                    child = self.translation(bll, obj, 0, 0, in_param[param])
+                    if type(in_param[param]) == dict:
+                        child = in_param[param]
+                    elif type(in_param[param]) == BLL.BLLblock:
+                        child = self.translation(bll, obj, 0, 0, in_param[param])
                 out["params"].append(child)
+
             elif type(param) == rule_to_ent:
                 out["params"].append(self.block_build(bll, obj, 0, 0, param._type, 0, param._params, in_param))
         return out

@@ -5,6 +5,8 @@ class BLLfile:
         self._global_srcs = {} #id:src
         self._vars = [] #var
         self._casts = [] #cast
+        self._procedures_map = {} #obj:proccode : procedure_id
+        self._procedure_var_map = {} #name, id
         self._id_gen = id_gen
         self._stat_block_cnt = 0
         
@@ -57,6 +59,7 @@ class BLLblock:
         self._command = ""
         self._param = dict() #key: BLLblock or BLLblocks
         self._field = dict() #key:str
+        self._mutation = dict() #함수 정의 전용
 
     def literal(self, mode, value):
         self._is_literal = True
@@ -84,3 +87,9 @@ class BLLcast:
     def __init__(self):
         self._id = ""
         self._displayname = ""
+
+class BLLprocedure:
+    def __init__(self):
+        self._id = ""
+        self._dependency = "" #obj id
+        self._arguments = [] # list[type, name] #s, b
