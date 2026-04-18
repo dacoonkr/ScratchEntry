@@ -1,5 +1,6 @@
 import BLL.bll as BLL
 import BLL.util as UTIL
+import Entry.dict as DICT
 
 class rule_from_bll:
     def __init__(self):
@@ -40,10 +41,9 @@ class translator:
     def __init__(self):
         self.rules = dict() # bll_type:[bll_rule, ent_rule]
 
-        text = open("Entry/dict.txt", "r", encoding = "UTF-8").read()
         key_parsed, key = False, None
 
-        for rule in text.split('\n'):
+        for rule in DICT.dict_text.split('\n'):
             if rule.startswith("#"): continue
             if rule.startswith("{"):
                 if key_parsed:
@@ -119,7 +119,6 @@ class translator:
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
         rule, in_param = self.rules[block._command], dict() #key:
         for param in rule[0]._params:
-            print(obj._displayname, block._command)
             if param.startswith("@@"):
                 param = param[2:]
                 in_param[param] = block._param[param]._literal_value #str

@@ -23,9 +23,11 @@ def s2b(json):
         #모양 파싱
         for costume in cur["costumes"]:
             src = BLL.BLLsrc()
-            src._id = id_map[costume["assetId"]] = id_gen.new_id()
+            src._id = id_gen.new_id()
             src._displayname = costume["name"]
             src._type = "img"
+            if costume["assetId"] not in id_map:
+                id_map[costume["assetId"]] = id_gen.new_id()
             src._filepath = id_map[costume["assetId"]] + "." + costume["dataFormat"]
             src._center = [costume["rotationCenterX"], costume["rotationCenterY"]]
             obj._srcs.append(src._id)
