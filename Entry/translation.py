@@ -119,6 +119,7 @@ class translator:
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
         rule, in_param = self.rules[block._command], dict() #key:
         for param in rule[0]._params:
+            print(obj._displayname, block._command)
             if param.startswith("@@"):
                 param = param[2:]
                 in_param[param] = block._param[param]._literal_value #str
@@ -136,7 +137,9 @@ class translator:
                         out.append(self.translation(bll, obj, 0, 0, cur))
                 in_param[param] = out
             elif type(block._param[param]) == BLL.BLLblock: #리터럴
-                in_param[param] = block._param[param] #BLLblock
+                if param not in block._param: #빈칸, 대부분 미완성 코드이므로 중요치 않음
+                    in_param[param] = "0"
+                else: in_param[param] = block._param[param] #BLLblock
             elif type(block._param[param]) == BLL.BLLblocks: #단일블럭
                 in_param[param] = block._param[param]._blocks[0] #BLLblock
                 

@@ -17,7 +17,7 @@ class BLLfile:
 
     def find_cast(self, displayname):
         for i in self._casts:
-            if i._displayname == displayname:
+            if i._displayname.lower() == displayname.lower():
                 return i
 
     def find_var(self, mode, displayname):

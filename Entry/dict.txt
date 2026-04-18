@@ -283,7 +283,7 @@
 # 10 ^, e ^
 
 {data_setvariableto:VALUE:&VARIABLE}
-{set_variable:@VARIABLE%[%v]}
+{set_variable:@VARIABLE%[%v]:VALUE}
 
 {data_changevariableby:VALUE:&VARIABLE}
 {change_variable:@VARIABLE%[%v]:VALUE}

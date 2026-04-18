@@ -1,5 +1,5 @@
-# 이 프로젝트는 현재 전면 재작성 중에 있습니다.
-## 따라서 모든 기능이 제대로 작동하지 않습니다.
+# 이 프로젝트는 현재 베타 버전입니다.
+## 사용 시에 오류가 있을 수 있습니다. 자세한 사항은 주의사항 문서를 확인 바랍니다.
 
 ## 구조도
 ![](doc/structure.png)
@@ -9,5 +9,5 @@
 ### MOD 1: 스크래치 -> 엔트리
 [주의사항 확인](/doc/warning_s2e.md)
 ```
-python main.py input=in.sb3 output=out.ent
+python main.py in.sb3 out.ent
 ```
