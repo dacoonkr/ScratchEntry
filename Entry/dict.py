@@ -1,20 +1,25 @@
 dict_text = """
 #작성 시 문법
 #스크래치에서 인식 {종류:파람1:파람2>필드1:필드2}
-# @    : 파람 중 _menu로 이어지는 것은, 필드값을 바로 불러와 문자열 취급
-# @@   : 파람 중 리터럴인 것을 문자열 취급
-# &    : 필드 문자열
-# *    : 파람 중 STATEMENT
-
+# @     : 파람 중 _menu로 이어지는 것은, 필드값을 바로 불러와 문자열 취급
+# @@    : 파람 중 리터럴인 것을 문자열 취급
+# &     : 필드 문자열
+# *     : 파람 중 STATEMENT
+# &&~=~ : 필터링-필드 문자열이 일치하는것만 
+#처리 구분(/로 시작)
+#var name type label (label이 _new_일시 개별로 생성)
+#    cast: 신호
+#reg ID obj param1..: 스니펫(청크 타입) 등록
+#    obj: name or self
 #엔트리에서 출력
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
-# &!   : 필드 null값
-# &~~  : 필드 문자열값
-# &&~~ : number 리터럴 블럭 생성
-# @~~  : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
-# ?b   : 스테이지 오브젝트 id
-# ?B   : 다음 배경 전환 신호
-# *~~  : STATEMENT
+# &!    : 필드 null값
+# &~~   : 필드 문자열값
+# &&~~  : number 리터럴 블럭 생성
+# @~~   : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
+# ?b    : 스테이지 오브젝트 id
+# ?B    : 다음 배경 전환 신호
+# *~~   : STATEMENT
 # %[a:b,c:d]  : 포맷팅
 #    %o: 오브젝트 포인터
 #    %k: 키 셀렉터
@@ -35,6 +40,11 @@ dict_text = """
 
 {event_whenthisspriteclicked}
 {when_object_click}
+
+{event_whengreaterthan:VALUE:&&WHENGREATERTHANMENU=TIMER}
+/var CAST cast _new_
+/reg timer_when self VALUE CAST
+{when_message_cast:&!:@CAST}
 
 {event_broadcast:@@BROADCAST_INPUT}
 {message_cast:@BROADCAST_INPUT%[%b]}

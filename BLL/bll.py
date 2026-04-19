@@ -9,6 +9,7 @@ class BLLfile:
         self._procedure_var_map = {} #name, id
         self._id_gen = id_gen
         self._stat_block_cnt = 0
+        self._registrations = [] #BLLregistration
         
     def find_obj(self, displayname):
         for i in self._objs:
@@ -93,3 +94,10 @@ class BLLprocedure:
         self._id = ""
         self._dependency = "" #obj id
         self._arguments = [] # list[type, name] #s, b
+
+class BLLregistration:
+    def __init__(self):
+        self._type = "" #chunk, func
+        self._target = None #BLLobj
+        self._params = {}
+        self._snippet = None #snippet

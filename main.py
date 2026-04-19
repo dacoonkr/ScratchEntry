@@ -6,7 +6,7 @@ import sys, time
 import argparse
 
 
-#python main.py input=test/test.sb3 output=test/out.ent
+#python main.py test/test.sb3 test/out.ent
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Scratch → Entry converter")

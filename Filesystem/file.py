@@ -67,6 +67,8 @@ def audio_getsize(input_path, id):
     return 1 #일단 되나 테스트해보고, 나중에 수정
 
 def make_ent(ent: ENT.ENTfile, input_path, output_path):
+    for obj in ent._json["objects"]: #json객체를 덤핑
+        obj["script"] = json.dumps(obj["script"])
     open(f'{input_path}/temp/project.json', 'w').write(json.dumps(ent._json))
     path = f'{input_path}'
     with tarfile.open(output_path, "w:gz") as tar_handle:

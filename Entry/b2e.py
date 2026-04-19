@@ -9,31 +9,35 @@ import json
 def b2e(bll: BLL.BLLfile, input_path):
     out = ENT.ENTfile()
     var_pos_gen = UTIL.var_position_generator()
+    trans: TRANS.translator = TRANS.translator()
     out._json["name"] = bll._name
     scene = bll._id_gen.new_id()
     out._json["scenes"] = [{
         "id": scene,
         "name": "Stage"
     }]
-    for var in bll._vars:
-        out._json["variables"].append(var_build(var_pos_gen, var))
-    for obj in bll._objs:
-        obj, procedures = obj_build(bll, obj, scene, input_path)
+    registration_match = dict() #obj_id:index
+    for obj_i in bll._objs:
+        obj, procedures = obj_build(bll, obj_i, scene, input_path)
+        registration_match[obj_i._id] = len(out._json["objects"])
         out._json["objects"].append(obj)
         for procedure in procedures:
-            out._json["functions"].append(function_build(bll, obj, procedure))
+            out._json["functions"].append(function_build(bll, obj, procedure, trans))
     for cast in bll._casts:
         out._json["messages"].append(broadcast_build(bll, cast))
+    for var in bll._vars:
+        out._json["variables"].append(var_build(var_pos_gen, var))
+    for regis in bll._registrations:
+        out._json["objects"][registration_match[regis._target._id]]["script"].append(regis._snippet.build(bll, regis._target, regis._params, dict(), trans))
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
 
-def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedure):
+def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedure, trans: TRANS.translator):
     out = dict()
     out["id"] = procedure[0]._id
     out["type"] = "normal"
     out["localVariables"] = []
     out["useLocalVariables"] = False
-    trans: TRANS.translator = TRANS.translator()
     param_block = None
     for i in procedure[0]._arguments[::-1]:
         type_str = "function_field_string" if i[0] == "s" else "function_field_boolean"
@@ -60,7 +64,7 @@ def obj_build(bll: BLL.BLLfile, obj: BLL.BLLobj, scene, input_path):
     out["id"] = obj._id
     out["name"] = obj._displayname
     script, procedures = BLOCK.code_build(bll, obj, obj._codes)
-    out["script"] = json.dumps(script)
+    out["script"] = script #dump전으로 저장
     out["objectType"] = "sprite"
     out["rotateMethod"] = "free"
     out["scene"] = scene

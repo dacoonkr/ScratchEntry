@@ -8,4 +8,5 @@ def stats(bll: BLL.BLLfile):
     print("자료 개수: ", len(bll._vars) + len(bll._casts))
     print("블럭 개수: ", bll._stat_block_cnt)
     print("함수 개수: ", len(bll._procedures_map))
+    print("레지스트레이션 개수: ", len(bll._registrations))
     print("=" * len(tablehead.encode("cp949")))

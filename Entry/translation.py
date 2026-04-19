@@ -1,56 +1,31 @@
 import BLL.bll as BLL
 import BLL.util as UTIL
 import Entry.dict as DICT
-
-class rule_from_bll:
-    def __init__(self):
-        self._type = ""
-        self._params = []
-
-class rule_to_ent:
-    def __init__(self):
-        self._type = ""
-        self._params = [] #list[rule_to_ent, str]
-
-def rule_from_bll_parse(s):
-    li = s.strip("{}").split(':')
-    out = rule_from_bll()
-    out._type = li[0]
-    out._params = li[1:]
-    return out
-
-def rule_to_ent_parse(s):
-    s = s[1:len(s) - 1] + ":"
-    li = []
-    depth, cur = 0, ""
-    for ch in s:
-        if ch == '{' or ch == '[': depth += 1
-        if ch == '}' or ch == ']': depth -= 1
-        if ch == ':' and depth == 0:
-            if cur.startswith("{"):
-                li.append(rule_to_ent_parse(cur))
-            else: li.append(cur)
-            cur = ""
-        else: cur += ch
-    out = rule_to_ent()
-    out._type = li[0]
-    out._params = li[1:]
-    return out
+import Entry.rule as RULE
+import Entry.snippet as SNIP
 
 class translator:
     def __init__(self):
-        self.rules = dict() # bll_type:[bll_rule, ent_rule]
+        self.rules = dict() # bll_type:list[[bll_rule, ent_rule]]
 
         key_parsed, key = False, None
+        commands = []
 
         for rule in DICT.dict_text.split('\n'):
             if rule.startswith("#"): continue
             if rule.startswith("{"):
                 if key_parsed:
-                    self.rules[key._type] = [key, rule_to_ent_parse(rule)]
+                    ent_rule = RULE.rule_to_ent_parse(rule)
+                    ent_rule._commands = commands
+                    commands = []
+                    if key._type not in self.rules:
+                        self.rules[key._type] = []
+                    self.rules[key._type].append([key, ent_rule])
                     key_parsed = False
                 else:
-                    key_parsed, key = True, rule_from_bll_parse(rule)
+                    key_parsed, key = True, RULE.rule_from_bll_parse(rule)
+            if rule.startswith("/"):
+                commands.append(rule[1:].split())
 
     def format(self, text, bll: BLL.BLLfile, obj: BLL.BLLobj, format_rule):
         out = text
@@ -117,33 +92,69 @@ class translator:
         if not block._command in self.rules:
             print("Missing Definition:", block._command)
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
-        rule, in_param = self.rules[block._command], dict() #key:
-        for param in rule[0]._params:
-            if param.startswith("@@"):
-                param = param[2:]
-                in_param[param] = block._param[param]._literal_value #str
-            elif param.startswith("@"):
-                param = param[1:]
-                in_param[param] = block._param[param]._blocks[0]._field[param] #str
-            elif param.startswith("&"):
-                param = param[1:]
-                in_param[param] = block._field[param] #str
-            elif param.startswith("*"): #STATEMENT
-                param = param[1:]
-                out = []
-                if param in block._param:
-                    for cur in block._param[param]._blocks: #BLLblock
-                        out.append(self.translation(bll, obj, 0, 0, cur))
-                in_param[param] = out
-            elif type(block._param[param]) == BLL.BLLblock: #리터럴
-                if param not in block._param: #빈칸, 대부분 미완성 코드이므로 중요치 않음
-                    in_param[param] = "0"
-                else: in_param[param] = block._param[param] #BLLblock
-            elif type(block._param[param]) == BLL.BLLblocks: #단일블럭
-                in_param[param] = block._param[param]._blocks[0] #BLLblock
-                
-        out = self.block_build(bll, obj, x, y, rule[1]._type, 0, rule[1]._params, in_param)
-        return out
+        rules, in_param = self.rules[block._command], dict() #key:
+        for rule in rules: #여러 패턴 탐색
+            matched = True
+            for param in rule[0]._params:
+                if param.startswith("@@"):
+                    param = param[2:]
+                    in_param[param] = block._param[param]._literal_value #str
+                elif param.startswith("@"):
+                    param = param[1:]
+                    in_param[param] = block._param[param]._blocks[0]._field[param] #str
+                elif param.startswith("&&"):
+                    args = param[2:].split('=')
+                    if block._field[args[0]] != args[1]:
+                        matched = False
+                        break
+                elif param.startswith("&"):
+                    param = param[1:]
+                    in_param[param] = block._field[param] #str
+                elif param.startswith("*"): #STATEMENT
+                    param = param[1:]
+                    out = []
+                    if param in block._param:
+                        for cur in block._param[param]._blocks: #BLLblock
+                            out.append(self.translation(bll, obj, 0, 0, cur))
+                    in_param[param] = out
+                elif type(block._param[param]) == BLL.BLLblock: #리터럴
+                    if param not in block._param: #빈칸, 대부분 미완성 코드이므로 중요치 않음
+                        in_param[param] = "0"
+                    else: in_param[param] = block._param[param] #BLLblock
+                elif type(block._param[param]) == BLL.BLLblocks: #단일블럭
+                    in_param[param] = block._param[param]._blocks[0] #BLLblock
+            if matched:
+                #커맨드 실행
+                for command in rule[1]._commands:
+                    self.run_command(bll, obj, command, in_param)
+                out = self.block_build(bll, obj, x, y, rule[1]._type, 0, rule[1]._params, in_param)
+                return out
+            
+        if not block._command in self.rules:
+            print("Missing Field Matching:", block._command)
+
+    def run_command(self, bll:BLL.BLLfile, obj, command, in_param):
+        if command[0] == "var":
+            value = ""
+            if command[2] == "cast": #타입 확인 command[2]
+                if command[3] == "_new_":
+                    cast = BLL.BLLcast()
+                    cast._id = bll._id_gen.new_id()
+                    cast._displayname = f"code_{cast._id}"
+                    bll._casts.append(cast)
+                    value = cast._id
+                else: value = bll.find_cast(command[3])
+            in_param[command[1]] = value
+        if command[0] == "reg":
+            params = []
+            for param in command[3:]:
+                params.append(in_param[param])
+            regis = BLL.BLLregistration()
+            regis._type = "chunk"
+            regis._target = obj if command[2] == "self" else bll.find_obj(command[2])
+            regis._params = params
+            regis._snippet = SNIP.global_wrapper._definitions[command[1]]
+            bll._registrations.append(regis)
 
     def block_build(self, bll: BLL.BLLfile, obj, x, y, command, literal_value, params, in_param: dict):
         out = dict()
@@ -195,6 +206,6 @@ class translator:
                         child = self.translation(bll, obj, 0, 0, in_param[param])
                 out["params"].append(child)
 
-            elif type(param) == rule_to_ent:
+            elif type(param) == RULE.rule_to_ent:
                 out["params"].append(self.block_build(bll, obj, 0, 0, param._type, 0, param._params, in_param))
         return out
