@@ -4,6 +4,7 @@ import Entry.ent as ENT
 import Filesystem.file as FS
 import Entry.b2e_block as BLOCK
 import Entry.translation as TRANS
+import Entry.regis as REGIS
 import json
 
 def b2e(bll: BLL.BLLfile, input_path):
@@ -16,7 +17,9 @@ def b2e(bll: BLL.BLLfile, input_path):
         "id": scene,
         "name": "Stage"
     }]
-    registration_match = dict() #obj_id:index
+    pre_registrator = REGIS.pre_registrator(function_build, trans) #실행 전 레지스트레이션
+    pre_registrator.mount(bll, out)
+    registration_match = dict() #실행 후 레지스트레이션 obj_id:index
     for obj_i in bll._objs:
         obj, procedures = obj_build(bll, obj_i, scene, input_path)
         registration_match[obj_i._id] = len(out._json["objects"])

@@ -10,6 +10,7 @@ class BLLfile:
         self._id_gen = id_gen
         self._stat_block_cnt = 0
         self._registrations = [] #BLLregistration
+        self._pre_registrations_map = {} #name, func id
         
     def find_obj(self, displayname):
         for i in self._objs:

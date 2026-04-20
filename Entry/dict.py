@@ -1,4 +1,4 @@
-dict_text = """
+grammer = """
 #작성 시 문법
 #스크래치에서 인식 {종류:파람1:파람2>필드1:필드2}
 # @     : 파람 중 _menu로 이어지는 것은, 필드값을 바로 불러와 문자열 취급
@@ -13,6 +13,7 @@ dict_text = """
 #    obj: name or self
 #엔트리에서 출력
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
+# !~~   : 프리레지스트레이션 함수 호출
 # &!    : 필드 null값
 # &~~   : 필드 문자열값
 # &&~~  : number 리터럴 블럭 생성
@@ -28,6 +29,9 @@ dict_text = """
 #    %c: shape 셀렉터
 #    %v: 변수 셀렉터
 #    %l: 리스트 셀렉터
+"""
+
+dict_text = """
 
 {event_whenflagclicked}
 {when_run_button_click}
@@ -64,8 +68,11 @@ dict_text = """
 {motion_turnleft:DEGREES}
 {rotate_relative:{calc_basic:&&0:&MINUS:DEGREES}}
 
-{motion_goto:@TO}
-{locate:@TO%[_mouse_:mouse,%o]}
+{motion_goto:TO}
+{!moveto:TO:&&0}
+
+{motion_goto_menu:&TO}
+{text:@TO}
 
 {motion_gotoxy:X:Y}
 {locate_xy:X:Y}

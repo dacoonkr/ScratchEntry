@@ -32,6 +32,7 @@ class translator:
         for i in format_rule.strip('[]').split(','):
             if i == "%o":
                 if out == "_stage_": out = "Stage"
+                if out == "_random_": out = "Stage" #삭제될구문
                 out = bll.find_obj(out)._id
             elif i == "%k":
                 if out == "left arrow": out = "37"
@@ -125,9 +126,12 @@ class translator:
                     in_param[param] = block._param[param]._blocks[0] #BLLblock
             if matched:
                 #커맨드 실행
+                block_type = rule[1]._type
+                if block_type.startswith("!"):
+                    block_type = f"func_{bll._pre_registrations_map[block_type[1:]]}"
                 for command in rule[1]._commands:
                     self.run_command(bll, obj, command, in_param)
-                out = self.block_build(bll, obj, x, y, rule[1]._type, 0, rule[1]._params, in_param)
+                out = self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)
                 return out
             
         if not block._command in self.rules:
@@ -170,7 +174,7 @@ class translator:
         out["params"] = []
         out["statements"] = []
         out["type"] = command
-        if command == "text":
+        if command == "text" and len(params) == 0: #코드가 내부적으로 만든 text일때는 literal_value를 읽음
             out["params"] = [str(literal_value)]
             return out
         if command == "get_variable":
@@ -192,6 +196,8 @@ class translator:
                     child = self.block_build(bll, obj, 0, 0, "text", param[2:], [], dict())
                 elif param.startswith("&"):
                     child = param[1:]
+                elif param.startswith("+"):
+                    child = self.block_build(bll, obj, 0, 0, "text", in_param[param[1:]], [], dict())
                 elif param.startswith("@"):
                     child = self.format(in_param[param[1:]], bll, obj, format_rule)
                 elif param.startswith("?"):
