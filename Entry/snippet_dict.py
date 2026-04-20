@@ -43,7 +43,7 @@ end
 end
 
 @stack,moveto_substack
-{locate_object_time:SECS:@NAME%[_mouse_:mouse]}
+{locate_object_time:SECS:@NAME%[_mouse_:mouse,%o]}
 end
 
 @func,moveto,TARGET,SECS

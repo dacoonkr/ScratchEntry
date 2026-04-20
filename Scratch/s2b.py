@@ -1,6 +1,7 @@
 import BLL.bll as BLL
 import BLL.util as UTIL
 import Scratch.s2b_block as BLOCK
+import option as OPT
 
 def s2b(json):
     id_gen = UTIL.short_ID_generator()
@@ -86,6 +87,11 @@ def s2b(json):
     for cur in json["targets"]:
         #파생 블록 파싱
         for block in cur["blocks"]:
+            if not OPT.global_option.preserve: #보존 옵션이 없다면
+                command = cur["blocks"][block]["opcode"]
+                if command == "procedures_definition" or command.startswith("event"):
+                    pass
+                else: continue
             if cur["blocks"][block]["topLevel"]:
                 blocks, stat_cnt = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
                 out._stat_block_cnt += stat_cnt

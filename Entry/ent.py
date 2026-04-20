@@ -24,4 +24,7 @@ class ENTfile:
         file["childCnt"] = 0
         file["comment"] = 0
 
+        file["parent"] = "69e605cea828571b688075c7"
+        file["origin"] = "69e605cea828571b688075c7"
+
         self._json = file
