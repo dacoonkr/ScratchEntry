@@ -1,6 +1,7 @@
 import BLL.bll as BLL
 import BLL.util as UTIL
 import Scratch.s2b_block as BLOCK
+import BLL.bll_logger as LOGGER
 import option as OPT
 
 def s2b(json):
@@ -87,6 +88,8 @@ def s2b(json):
     for cur in json["targets"]:
         #파생 블록 파싱
         for block in cur["blocks"]:
+            LOGGER.log(3, f"블럭 인식 시작: {block}")
+            if type(cur["blocks"][block]) == list: continue #더미 리터럴
             if not OPT.global_option.preserve: #보존 옵션이 없다면
                 command = cur["blocks"][block]["opcode"]
                 if command == "procedures_definition" or command.startswith("event"):

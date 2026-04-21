@@ -3,6 +3,7 @@ import BLL.util as UTIL
 import Entry.dict as DICT
 import Entry.rule as RULE
 import Entry.snippet as SNIP
+import BLL.bll_logger as LOGGER
 
 class translator:
     def __init__(self):
@@ -91,7 +92,7 @@ class translator:
             return self.block_build(bll, obj, x, y, f"func_{bll._procedures_map[value]}", 0, params, in_param)
             
         if not block._command in self.rules:
-            print("Missing Definition:", block._command)
+            LOGGER.log(1, f"정의를 찾을 수 없음: {block._command}")
             return self.block_build(bll, obj, x, y, "show", 0, [], dict())
         rules, in_param = self.rules[block._command], dict() #key:
         for rule in rules: #여러 패턴 탐색

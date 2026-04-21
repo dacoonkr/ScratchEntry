@@ -1,4 +1,5 @@
 import BLL.bll as BLL
+import option as OPT
 
 def stats(bll: BLL.BLLfile):
     tablehead = "========「" + bll._name + "」의 통계 ========"
@@ -10,3 +11,7 @@ def stats(bll: BLL.BLLfile):
     print("함수 개수: ", len(bll._procedures_map))
     print("레지스트레이션 개수: ", len(bll._registrations))
     print("=" * len(tablehead.encode("cp949")))
+
+def log(level: int, message: str):
+    if level <= int(OPT.global_option.log):
+        print(message)

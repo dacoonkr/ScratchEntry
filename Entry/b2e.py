@@ -5,6 +5,7 @@ import Filesystem.file as FS
 import Entry.b2e_block as BLOCK
 import Entry.translation as TRANS
 import Entry.regis as REGIS
+import BLL.bll_logger as LOGGER
 import json
 
 def b2e(bll: BLL.BLLfile, input_path):
@@ -17,20 +18,28 @@ def b2e(bll: BLL.BLLfile, input_path):
         "id": scene,
         "name": "Stage"
     }]
+    LOGGER.log(2, "프리레지스트레이션 로드 시작")
     pre_registrator = REGIS.pre_registrator(function_build, trans) #실행 전 레지스트레이션
     pre_registrator.mount(bll, out)
+    LOGGER.log(2, f"프리레지스트레이션 로드 완료")
     registration_match = dict() #실행 후 레지스트레이션 obj_id:index
     for obj_i in bll._objs:
+        LOGGER.log(2, f"오브젝트 생성 시작: {obj_i._displayname}")
         obj, procedures = obj_build(bll, obj_i, scene, input_path)
         registration_match[obj_i._id] = len(out._json["objects"])
         out._json["objects"].append(obj)
+        LOGGER.log(2, f"오브젝트 생성 완료: {obj_i._displayname}")
         for procedure in procedures:
+            LOGGER.log(2, f"함수 등록: 소유자({obj_i._displayname}) 인수({','.join([k[1] for k in procedure[0]._arguments])})")
             out._json["functions"].append(function_build(bll, obj, procedure, trans))
     for cast in bll._casts:
+        LOGGER.log(2, f"신호 등록: {cast._displayname}")
         out._json["messages"].append(broadcast_build(bll, cast))
     for var in bll._vars:
+        LOGGER.log(2, f"변수 등록: {var._displayname}")
         out._json["variables"].append(var_build(var_pos_gen, var))
     for regis in bll._registrations:
+        LOGGER.log(2, f"레지스트레이션 등록: {regis._id}")
         out._json["objects"][registration_match[regis._target._id]]["script"].append(regis._snippet.build(bll, regis._target, regis._params, dict(), trans))
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
