@@ -39,8 +39,11 @@ class snippet:
     def listup(self, bll: BLL.BLLfile, param):
         if param == "%o":
             return [i._displayname for i in bll._objs]
+        elif param == "%b":
+            return [i._displayname for i in bll._casts if not i._displayname.startswith("scene_")]
         elif param.startswith("["):
             return param.strip('[]').split(',')
+        else: return []
 
     def run_command(self, bll: BLL.BLLfile, obj: BLL.BLLobj, out, command, in_param, trans):
         if command[0] == "sub":

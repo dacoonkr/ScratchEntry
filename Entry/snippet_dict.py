@@ -6,7 +6,7 @@ grammer = """
 # chunk  (하나의 BLLblocks)
 # func   (함수 선언자, 커스텀블럭, 파람)
 #end    정의 종료
-#처리 구분(/로 시작)
+#처리 구문(/로 시작)
 #sub name ID: 서브스택
 #(내부적으로 사용) run idx: ent_rule에 따라 블럭 생성
 #var name type label (label이 _new_일시 개별로 생성)
@@ -15,6 +15,7 @@ grammer = """
 #vareach name type line src (line:반복문에 포함될 줄 수, 빈 줄 포함X, 반복 중첩X)
 #    [~,~,...]
 #    %o : 오브젝트 이름 목록
+#    %b : 신호 이름 목록
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
 # &!   : 필드 null값
 # &~~  : 필드 문자열값
@@ -60,4 +61,37 @@ end
 {_if:{boolean_basic_operator:TARGET:&EQUAL:+NAME}:*SUBSTK}
 end
 
+@stack,seeto_substack
+{see_angle_object:@NAME%[_mouse_:mouse,%o]}
+end
+
+@func,seeto,TARGET
+/var NAME str _mouse_
+/sub SUBSTK seeto_substack
+{_if:{boolean_basic_operator:TARGET:&EQUAL:+NAME}:*SUBSTK}
+
+/vareach NAME str 2 %o
+/sub SUBSTK seeto_substack
+{_if:{boolean_basic_operator:TARGET:&EQUAL:+NAME}:*SUBSTK}
+end
+
+@func,sendcast_substack
+{message_cast:@NAME%[%b]}
+end
+
+@func,sendcast,CAST
+/vareach NAME str 2 %b
+/sub SUBSTK sendcast_substack
+{_if:{boolean_basic_operator:CAST:&EQUAL:+NAME}:*SUBSTK}
+end
+
+@func,waitcast_substack
+{message_cast_wait:@NAME%[%b]}
+end
+
+@func,waitcast,CAST
+/vareach NAME str 2 %b
+/sub SUBSTK waitcast_substack
+{_if:{boolean_basic_operator:CAST:&EQUAL:+NAME}:*SUBSTK}
+end
 """

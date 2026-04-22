@@ -50,11 +50,17 @@ dict_text = """
 /reg timer_when self VALUE CAST
 {when_message_cast:&!:@CAST}
 
-{event_broadcast:@@BROADCAST_INPUT}
-{message_cast:@BROADCAST_INPUT%[%b]}
+{event_broadcast:BROADCAST_INPUT}
+{!sendcast:BROADCAST_INPUT}
 
-{event_broadcastandwait:@@BROADCAST_INPUT}
-{message_cast_wait:@BROADCAST_INPUT%[%b]}
+{event_broadcast_menu:&BROADCAST_INPUT}
+{text:@BROADCAST_INPUT}
+
+{event_broadcastandwait:BROADCAST_INPUT}
+{!waitcast:BROADCAST_INPUT}
+
+{event_broadcastandwait_menu:&BROADCAST_INPUT}
+{text:@BROADCAST_INPUT}
 
 {event_whenbackdropswitchesto:&BACKDROP}
 {when_message_cast:&!:@BACKDROP%[%B]}
@@ -77,8 +83,8 @@ dict_text = """
 {motion_gotoxy:X:Y}
 {locate_xy:X:Y}
 
-{motion_glideto:SECS:@TO}
-{locate_object_time:SECS:@TO%[_mouse_:mouse,%o]}
+{motion_glideto:SECS:TO}
+{!moveto:TO:SECS}
 
 {motion_glidesecstoxy:SECS:X:Y}
 {move_xy_time:SECS:X:Y}
@@ -86,8 +92,11 @@ dict_text = """
 {motion_pointindirection:DIRECTION}
 {rotate_absolute:DIRECTION}
 
-{motion_pointtowards:@TOWARDS}
-{see_angle_object:@TOWARDS%[_mouse_:mouse,%o]}
+{motion_pointtowards:TOWARDS}
+{!seeto:TOWARDS}
+
+{motion_pointtowards_menu:&TOWARDS}
+{text:@TOWARDS}
 
 {motion_changexby:DX}
 {move_x:DX}

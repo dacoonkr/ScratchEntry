@@ -9,4 +9,7 @@ grammer = """
 
 registration_text = """
 /freg moveto
+/freg seeto
+/freg sendcast
+/freg waitcast
 """
