@@ -14,6 +14,7 @@ class snippet:
     #in_param(재귀적으로 전달)과 params(새로 입력)를 결합함
     def build(self, bll: BLL.BLLfile, obj: BLL.BLLobj, params: list, in_param: dict, trans) -> list:
         out = []
+        name = self._id
         for i in range(len(self._params)):
             in_param[self._params[i]] = params[i]
 
@@ -22,6 +23,8 @@ class snippet:
             if skip[i]: continue
             command = self._commands[i]
             if command[0] == "vareach":
+                for j in range(int(command[3])):
+                    skip[i + 1 + j] = True
                 for item in self.listup(bll, command[4]):
                     if command[2] == "lit":
                         literal = trans.block_build(bll, obj, 0, 0, "text", item, [], dict())
@@ -30,11 +33,15 @@ class snippet:
                         in_param[command[1]] = item
                     for j in range(int(command[3])):
                         self.run_command(bll, obj, out, self._commands[i + 1 + j], in_param, trans)
-                        skip[i + 1 + j] = True
+            elif command[0] == "name":
+                name = ""
+                for j in command[1:]:
+                    if j.startswith("&"): name += in_param[j[1:]]
+                    else: name += j
             else:
                 self.run_command(bll, obj, out, command, in_param, trans)
 
-        return out
+        return name, out
 
     def listup(self, bll: BLL.BLLfile, param):
         if param == "%o":
@@ -47,7 +54,7 @@ class snippet:
 
     def run_command(self, bll: BLL.BLLfile, obj: BLL.BLLobj, out, command, in_param, trans):
         if command[0] == "sub":
-            in_param[command[1]] = self._wrapper._definitions[command[2]].build(bll, obj, [], in_param, trans)
+            name, in_param[command[1]] = self._wrapper._definitions[command[2]].build(bll, obj, [], in_param, trans)
         if command[0] == "var":
             if command[2] == "lit":
                 literal = trans.block_build(bll, obj, 0, 0, "text", command[3], [], dict())

@@ -9,10 +9,10 @@ import sys, time, argparse
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Scratch → Entry converter")
-    parser.add_argument("input", help="Input .sb3 file")
-    parser.add_argument("output", nargs="?", help="Output file")
-    parser.add_argument('--nocopymark', action='store_true', help='복사본 표시 제거')
-    parser.add_argument('--preserve', action='store_true', help='이벤트에 연결되지 않아 실행되지 않는 블럭까지 변환')
+    parser.add_argument("input", help="입력 .sb3 파일")
+    parser.add_argument("output", help="출력 .ent 파일")
+    parser.add_argument('--nocopymark', action='store_true', help='작품을 복사본으로 표시하지 않기')
+    parser.add_argument('--preserve', action='store_true', help='이벤트에 연결되지 않아 실행되지 않는 블럭까지 변환하기')
     parser.add_argument('--log', default=0, help = '로그 레벨')
     #parser.add_argument('--speedup', action='store_true', help='반복 가속하기')
     OPT.global_option = args = parser.parse_args()

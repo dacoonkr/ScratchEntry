@@ -1,7 +1,7 @@
 grammer = """
 #작성 시 문법
 #엔트리에서 출력
-#선언 @type,ID, param1..
+#선언 @type,ID,param1..
 # stack  (그냥 서브스택 데이터)
 # chunk  (하나의 BLLblocks)
 # func   (함수 선언자, 커스텀블럭, 파람)
@@ -12,11 +12,15 @@ grammer = """
 #var name type label (label이 _new_일시 개별로 생성)
 #    lit: 리터럴 블럭
 #    str: 필드 문자열값
+#name str1 str2 str3... : 각 인자를 모두 합친 이름으로 함수 이름 변경
+#    &NAME: NAME변수(str타입) 사용
 #vareach name type line src (line:반복문에 포함될 줄 수, 빈 줄 포함X, 반복 중첩X)
 #    [~,~,...]
 #    %o : 오브젝트 이름 목록
 #    %b : 신호 이름 목록
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
+# !~~   : 프리레지스트레이션 함수 호출
+# !&~~  : 프리레지스트레이션 함수 호출(변수값의 함수 이름 호출)
 # &!   : 필드 null값
 # &~~  : 필드 문자열값
 # &&~~ : number 리터럴 블럭 생성
@@ -93,5 +97,16 @@ end
 /vareach NAME str 2 %b
 /sub SUBSTK waitcast_substack
 {_if:{boolean_basic_operator:CAST:&EQUAL:+NAME}:*SUBSTK}
+end
+
+@stack,clearlist_substack
+{!&SELFCALL}
+end
+
+@func,clearlist
+/name clear &LIST
+{remove_value_from_list:{length_of_list:&!:@LIST}:@LIST}
+/sub SUBSTK clearlist_substack
+{_if:{boolean_basic_operator:{length_of_list:&!:@LIST}:&GREATER:&&0}:*SUBSTK}
 end
 """

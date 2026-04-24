@@ -3,6 +3,7 @@ import BLL.util as UTIL
 import Entry.dict as DICT
 import Entry.rule as RULE
 import Entry.snippet as SNIP
+import option as OPT
 import BLL.bll_logger as LOGGER
 
 class translator:
@@ -109,6 +110,10 @@ class translator:
                     if block._field[args[0]] != args[1]:
                         matched = False
                         break
+                elif param.startswith("&@"):
+                    if not getattr(OPT.global_option, param[2:]):
+                        matched = False
+                        break
                 elif param.startswith("&"):
                     param = param[1:]
                     in_param[param] = block._field[param] #str
@@ -128,15 +133,12 @@ class translator:
             if matched:
                 #커맨드 실행
                 block_type = rule[1]._type
-                if block_type.startswith("!"):
-                    block_type = f"func_{bll._pre_registrations_map[block_type[1:]]}"
                 for command in rule[1]._commands:
                     self.run_command(bll, obj, command, in_param)
                 out = self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)
                 return out
             
-        if not block._command in self.rules:
-            print("Missing Field Matching:", block._command)
+        LOGGER.log(1, f"필드가 매칭된 정의를 찾을 수 없음: {block._command}")
 
     def run_command(self, bll:BLL.BLLfile, obj, command, in_param):
         if command[0] == "var":
@@ -150,7 +152,7 @@ class translator:
                     value = cast._id
                 else: value = bll.find_cast(command[3])
             in_param[command[1]] = value
-        if command[0] == "reg":
+        if command[0] == "creg":
             params = []
             for param in command[3:]:
                 params.append(in_param[param])
@@ -160,6 +162,16 @@ class translator:
             regis._params = params
             regis._snippet = SNIP.global_wrapper._definitions[command[1]]
             bll._registrations.append(regis)
+        if command[0] == "cat":
+            name = ""
+            for i in command[2:]:
+                format_rule = "[]"
+                if "%" in i:
+                    format_rule = i[i.find('%') + 1:]
+                    i = i[:i.find('%')]
+                if i.startswith("&"): name += self.format(in_param[i[1:]], bll, obj, format_rule)
+                else: name += i
+            in_param[command[1]] = name
 
     def block_build(self, bll: BLL.BLLfile, obj, x, y, command, literal_value, params, in_param: dict):
         out = dict()
@@ -174,7 +186,14 @@ class translator:
         out["x"], out["y"] = x, y
         out["params"] = []
         out["statements"] = []
+        if command.startswith("!!"):
+            command = f"func_{bll._pre_registrations_map[in_param[command[2:]]]}"
+        elif command.startswith("!&"):
+            command = in_param[command[2:]]
+        elif command.startswith("!"):
+            command = f"func_{bll._pre_registrations_map[command[1:]]}"
         out["type"] = command
+
         if command == "text" and len(params) == 0: #코드가 내부적으로 만든 text일때는 literal_value를 읽음
             out["params"] = [str(literal_value)]
             return out

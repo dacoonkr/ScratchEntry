@@ -6,14 +6,19 @@ grammer = """
 # &     : 필드 문자열
 # *     : 파람 중 STATEMENT
 # &&~=~ : 필터링-필드 문자열이 일치하는것만 
+# &@    : 필터링-환경 옵션이 존재하는 것만
 #처리 구분(/로 시작)
 #var name type label (label이 _new_일시 개별로 생성)
 #    cast: 신호
-#reg ID obj param1..: 스니펫(청크 타입) 등록
+#creg ID obj param1..: 스니펫(청크 타입) 등록
 #    obj: name or self
+#cat name str1 str2 str3... : 각 인자를 모두 합친 이름으로 name 값 변경
+#    &~~: 변수명에서 값을 불러옴(포맷 %는 아래 문법에 의거해 가능)
 #엔트리에서 출력
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
 # !~~   : 프리레지스트레이션 함수 호출
+# !&~~  : 프리레지스트레이션 함수 호출(변수값의 함수 코드 호출)
+# !!~~  : 프리레지스트레이션 함수 호출(변수값의 함수 이름 찾아 호출)
 # &!    : 필드 null값
 # &~~   : 필드 문자열값
 # &&~~  : number 리터럴 블럭 생성
@@ -47,7 +52,7 @@ dict_text = """
 
 {event_whengreaterthan:VALUE:&&WHENGREATERTHANMENU=TIMER}
 /var CAST cast _new_
-/reg timer_when self VALUE CAST
+/creg timer_when self VALUE CAST
 {when_message_cast:&!:@CAST}
 
 {event_broadcast:BROADCAST_INPUT}
@@ -135,7 +140,10 @@ dict_text = """
 {dialog_time:MESSAGE:SECS:&think}
 
 {looks_switchcostumeto:@COSTUME}
-{change_to_some_shape:{get_pictures:@COSTUME%[%c]}}
+{change_to_some_shape:COSTUME}
+
+{looks_switchcostumeto_menu:&COSTUME}
+{text:@COSTUME}
 
 {looks_switchbackdropto:@BACKDROP}
 {message_cast:@BACKDROP%[%B]}
@@ -327,7 +335,9 @@ dict_text = """
 {data_deleteoflist:INDEX:&LIST}
 {remove_value_from_list:INDEX:@LIST%[%l]}
 
-#{data_deletealloflist}
+{data_deletealloflist:&LIST}
+/cat CALL clear &LIST%[%l]
+{!!CALL}
 
 {data_insertatlist:ITEM:INDEX:&LIST}
 {insert_value_to_list:ITEM:@LIST%[%l]:INDEX}
