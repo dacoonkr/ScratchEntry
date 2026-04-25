@@ -84,11 +84,11 @@ class translator:
             params, in_param = [], dict()
             cnt = 0
             for param in block._param:
-                params.append(cnt)
+                params.append(str(cnt))
                 if type(block._param[param]) == BLL.BLLblock: #리터럴
-                    in_param[cnt] = block._param[param] #BLLblock
+                    in_param[str(cnt)] = block._param[param] #BLLblock
                 if type(block._param[param]) == BLL.BLLblocks: #단일블럭
-                    in_param[cnt] = block._param[param]._blocks[0] #BLLblock
+                    in_param[str(cnt)] = block._param[param]._blocks[0] #BLLblock
                 cnt += 1
             return self.block_build(bll, obj, x, y, f"func_{bll._procedures_map[value]}", 0, params, in_param)
             
@@ -101,6 +101,9 @@ class translator:
             for param in rule[0]._params:
                 if param.startswith("@@"):
                     param = param[2:]
+                    if type(block._param[param]) == BLL.BLLblocks: #계산 값이 끼워져 있는가? type 판정으로 해결 가능
+                        matched = False
+                        break
                     in_param[param] = block._param[param]._literal_value #str
                 elif param.startswith("@"):
                     param = param[1:]
@@ -108,6 +111,11 @@ class translator:
                 elif param.startswith("&&"):
                     args = param[2:].split('=')
                     if block._field[args[0]] != args[1]:
+                        matched = False
+                        break
+                elif param.startswith("&#"):
+                    args = param[2:].split('=')
+                    if block._param[args[0]]._literal_value != args[1]:
                         matched = False
                         break
                 elif param.startswith("&@"):

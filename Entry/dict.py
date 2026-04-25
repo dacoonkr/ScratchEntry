@@ -6,6 +6,7 @@ grammer = """
 # &     : 필드 문자열
 # *     : 파람 중 STATEMENT
 # &&~=~ : 필터링-필드 문자열이 일치하는것만 
+# &#~=~ : 필터링-리터럴 값이 일치하는것만 
 # &@    : 필터링-환경 옵션이 존재하는 것만
 #처리 구분(/로 시작)
 #var name type label (label이 _new_일시 개별로 생성)
@@ -55,11 +56,17 @@ dict_text = """
 /creg timer_when self VALUE CAST
 {when_message_cast:&!:@CAST}
 
+{event_broadcast:@@BROADCAST_INPUT}
+{message_cast:@BROADCAST_INPUT%[%b]}
+
 {event_broadcast:BROADCAST_INPUT}
 {!sendcast:BROADCAST_INPUT}
 
 {event_broadcast_menu:&BROADCAST_INPUT}
 {text:@BROADCAST_INPUT}
+
+{event_broadcastandwait:@@BROADCAST_INPUT}
+{message_cast_wait:@BROADCAST_INPUT%[%b]}
 
 {event_broadcastandwait:BROADCAST_INPUT}
 {!waitcast:BROADCAST_INPUT}
@@ -139,10 +146,10 @@ dict_text = """
 {looks_thinkforsecs:MESSAGE:SECS}
 {dialog_time:MESSAGE:SECS:&think}
 
-{looks_switchcostumeto:@COSTUME}
+{looks_switchcostumeto:COSTUME}
 {change_to_some_shape:COSTUME}
 
-{looks_switchcostumeto_menu:&COSTUME}
+{looks_costume:&COSTUME}
 {text:@COSTUME}
 
 {looks_switchbackdropto:@BACKDROP}
@@ -331,6 +338,13 @@ dict_text = """
 
 {data_addtolist:ITEM:&LIST}
 {add_value_to_list:ITEM:@LIST%[%l]}
+
+{data_deleteoflist:&#INDEX=all:&LIST}
+/cat CALL clear &LIST%[%l]
+{!!CALL}
+
+{data_deleteoflist:&#INDEX=last:&LIST}
+{remove_value_from_list:{length_of_list:&!:@LIST%[%l]}:@LIST%[%l]}
 
 {data_deleteoflist:INDEX:&LIST}
 {remove_value_from_list:INDEX:@LIST%[%l]}
