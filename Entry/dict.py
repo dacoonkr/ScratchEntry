@@ -15,6 +15,7 @@ grammer = """
 #    obj: name or self
 #cat name str1 str2 str3... : 각 인자를 모두 합친 이름으로 name 값 변경
 #    &~~: 변수명에서 값을 불러옴(포맷 %는 아래 문법에 의거해 가능)
+#tag label : 태그 등록
 #엔트리에서 출력
 #{종류:파람1:파람2} 단, 파람에 {}사용 가능
 # !~~   : 프리레지스트레이션 함수 호출
@@ -201,9 +202,11 @@ dict_text = """
 {wait_second:DURATION}
 
 {control_repeat:TIMES:*SUBSTACK}
+/tag rep
 {repeat_basic:TIMES:*SUBSTACK}
 
 {control_forever:*SUBSTACK}
+/tag rep
 {repeat_inf:*SUBSTACK}
 
 {control_if:CONDITION:*SUBSTACK}
@@ -216,6 +219,7 @@ dict_text = """
 {wait_until_true:CONDITION}
 
 {control_repeat_until:CONDITION:*SUBSTACK}
+/tag rep
 {repeat_while_true:CONDITION:&until:*SUBSTACK}
 
 {control_stop:&STOP_OPTION}

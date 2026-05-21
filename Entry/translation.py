@@ -143,6 +143,11 @@ class translator:
                 block_type = rule[1]._type
                 for command in rule[1]._commands:
                     self.run_command(bll, obj, command, in_param)
+                if "tag" in in_param: 
+                    if ("rep" in in_param["tag"]) and OPT.global_option.repboost:
+                        LOGGER.log(3, f"적용됨: repboost")
+                        in_param["SUBSTACK"].append(SNIP.global_wrapper._definitions["repskip"].build(bll, obj, [], {}, self)[1][0]) #수정 중
+                LOGGER.log(3, f"{block._command}: {in_param}")
                 out = self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)
                 return out
             
@@ -180,6 +185,9 @@ class translator:
                 if i.startswith("&"): name += self.format(in_param[i[1:]], bll, obj, format_rule)
                 else: name += i
             in_param[command[1]] = name
+        if command[0] == "tag":
+            if "tag" not in in_param: in_param["tag"] = []
+            in_param["tag"].append(command[1])
 
     def block_build(self, bll: BLL.BLLfile, obj, x, y, command, literal_value, params, in_param: dict):
         out = dict()

@@ -109,4 +109,8 @@ end
 /sub SUBSTK clearlist_substack
 {_if:{boolean_basic_operator:{length_of_list:&!:@LIST}:&GREATER:&&0}:*SUBSTK}
 end
+
+@chunk,repskip
+{wait_until_true:{boolean_not:&!:{continue_repeat}}}
+end
 """
