@@ -10,7 +10,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Scratch → Entry converter")
     parser.add_argument("input", help="입력 .sb3 파일")
-    parser.add_argument("output", help="출력 .ent 파일")
+    parser.add_argument("output", nargs='?', help="출력 .ent 파일", default="unset")
     parser.add_argument('--nocopymark', action='store_true', help='작품을 복사본으로 표시하지 않기')
     parser.add_argument('--preserve', action='store_true', help='이벤트에 연결되지 않아 실행되지 않는 블럭까지 변환하기')
     parser.add_argument('--repboost', action='store_true', help='반복문 고속화(버그성 기믹 사용)')
@@ -36,7 +36,8 @@ if __name__ == "__main__":
         LOGGER.log(0, f"변환 완료됨: SB3 → BLL ({int(1000*(time.perf_counter()-start_t))}ms)")
     
     #아웃풋
-    if args.output.endswith(".ent"):
+    output_name = args.input.replace(".sb3", ".ent") if args.output == "unset" else args.output
+    if output_name.endswith(".ent"):
         start_t = time.perf_counter()
         ent = B2E.b2e(bll, ".out/bll")
         if args.nocopymark:
@@ -44,7 +45,7 @@ if __name__ == "__main__":
             ent._json.pop("parent")
             ent._json.pop("origin")
         FS.file_move_b2e(".out/bll", ".out/ent")
-        FS.make_ent(ent, ".out/ent", args.output)
+        FS.make_ent(ent, ".out/ent", output_name)
         LOGGER.log(0, f"변환 완료됨: BLL → ENT ({int(1000*(time.perf_counter()-start_t))}ms)")
 
     LOGGER.stats(bll)
