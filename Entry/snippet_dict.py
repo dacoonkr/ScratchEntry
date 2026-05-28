@@ -8,12 +8,15 @@ grammer = """
 #end    정의 종료
 #처리 구문(/로 시작)
 #sub name ID: 서브스택
+#append name: 청크를 그냥 이어붙임
 #(내부적으로 사용) run idx: ent_rule에 따라 블럭 생성
 #var name type label (label이 _new_일시 개별로 생성)
 #    lit: 리터럴 블럭
 #    str: 필드 문자열값
+#    blk: 엔트리 블럭(Entrule{} 사용)
 #name str1 str2 str3... : 각 인자를 모두 합친 이름으로 함수 이름 변경
 #    &NAME: NAME변수(str타입) 사용
+#local name: 함수 내부 로컬 변수 선언
 #vareach name type line src (line:반복문에 포함될 줄 수, 빈 줄 포함X, 반복 중첩X)
 #    [~,~,...]
 #    %o : 오브젝트 이름 목록
@@ -112,5 +115,30 @@ end
 
 @chunk,repskip
 {wait_until_true:{boolean_not:&!:{continue_repeat}}}
+end
+
+@stack,calcexp_substack
+{set_func_variable:@SUM:{calc_basic:{get_func_variable:@SUM}:&PLUS:{get_func_variable:@TERM}}}
+{set_func_variable:@I:{calc_basic:{get_func_variable:@I}:&PLUS:&&1}}
+{set_func_variable:@TERM:{calc_basic:{get_func_variable:@TERM}:&MULTI:@EXP}}
+{set_func_variable:@TERM:{calc_basic:{get_func_variable:@TERM}:&DIVIDE:{get_func_variable:@I}}}
+/append repskip
+end
+
+@stack,calcexp_return
+{get_func_variable:@SUM}
+end
+
+@func,calcexp,EXP
+/local SUM
+/local TERM
+/local I
+{set_func_variable:@SUM:&&0}
+{set_func_variable:@TERM:&&1}
+{set_func_variable:@I:&&0}
+/sub SUBSTK calcexp_substack
+{repeat_basic:&&100:*SUBSTK}
+/sub RET calcexp_return
+/var FUNC_RETURN blk RET
 end
 """

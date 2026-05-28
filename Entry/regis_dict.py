@@ -17,4 +17,5 @@ registration_text = """
 /freg waitcast
 /vareach LIST str 1 %l
 /freg clearlist
+/freg calcexp
 """

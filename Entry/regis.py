@@ -54,7 +54,12 @@ class pre_registrator:
                 params.append(param_block)
             LOGGER.log(3, f"스니펫 빌드 시작 {command[1]}")
             in_param["SELFCALL"] = f"func_{func._id}"
+            in_param["FUNC_ID"] = func._id
+            in_param["FUNC_LOCAL"] = []
+            in_param["FUNC_RETURN"] = None
             name, codes = snip.build(bll, None, params, in_param, self._translator)
             bll._pre_registrations_map[name] = func._id
-            func_json = self._function_builder(bll, None, [func] + codes, self._translator)
+            func_json = self._function_builder(bll, None, [func] + codes, self._translator,
+                locals = in_param["FUNC_LOCAL"],
+                ret = in_param["FUNC_RETURN"])
             out._json["functions"].append(func_json)

@@ -44,12 +44,18 @@ def b2e(bll: BLL.BLLfile, input_path):
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
 
-def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedure, trans: TRANS.translator):
+def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedure, trans: TRANS.translator, locals = [], ret = None):
     out = dict()
     out["id"] = procedure[0]._id
-    out["type"] = "normal"
+    out["type"] = ("normal" if ret == None else "value")
     out["localVariables"] = []
-    out["useLocalVariables"] = False
+    for i in locals:
+        localvar = dict()
+        localvar["name"] = i
+        localvar["value"] = 0
+        localvar["id"] = i
+        out["localVariables"].append(localvar)
+    out["useLocalVariables"] = (len(locals) > 0)
     param_block = None
     for i in procedure[0]._arguments[::-1]:
         type_str = "function_field_string" if i[0] == "s" else "function_field_boolean"
@@ -63,10 +69,17 @@ def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedur
     param_block = trans.block_build(bll, obj, 0, 0, "function_field_label", "", [f"&{procedure[0]._id}", "B"], {
         "B": param_block
     })
-    out["content"] = json.dumps([[trans.block_build(bll, obj, 0, 0, "function_create", "", ["A", "*B"], {
-        "A": param_block,
-        "B": procedure[1:]
-    })]])
+    if ret == None:
+        out["content"] = json.dumps([[trans.block_build(bll, obj, 0, 0, "function_create", "", ["A", "*B"], {
+            "A": param_block,
+            "B": procedure[1:]
+        })]])
+    else: #반환값 있음
+        out["content"] = json.dumps([[trans.block_build(bll, obj, 0, 0, "function_create_value", "", ["A", "&!", "&!", "B", "*C"], {
+            "A": param_block,
+            "B": ret,
+            "C": procedure[1:]
+        })]])
     return out
 
 def broadcast_build(bll: BLL.BLLfile, cast: BLL.BLLcast):

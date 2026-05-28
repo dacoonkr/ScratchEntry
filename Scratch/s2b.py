@@ -92,7 +92,7 @@ def s2b(json):
             if type(cur["blocks"][block]) == list: continue #더미 리터럴
             if not OPT.global_option.preserve: #보존 옵션이 없다면
                 command = cur["blocks"][block]["opcode"]
-                if command == "procedures_definition" or command.startswith("event"):
+                if command == "procedures_definition" or command.startswith("event") or command == "control_start_as_clone":
                     pass
                 else: continue
             if cur["blocks"][block]["topLevel"]:

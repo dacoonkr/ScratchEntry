@@ -322,15 +322,22 @@ dict_text = """
 {operator_round:NUM}
 {calc_operation:&!:NUM:&!:&round}
 
+{operator_mathop:NUM:&&OPERATOR=e ^}
+{!calcexp:NUM}
+
+{operator_mathop:NUM:&&OPERATOR=10 ^}
+{!calcexp:{calc_basic:NUM:&MULTI:{calc_operation:&!:&&10:&!:&ln}}}
+
 {operator_mathop:NUM:&OPERATOR}
 {calc_operation:&!:NUM:&!:@OPERATOR%[ceiling:ceil,sqrt:root,acos:acos_radian,asin:asin_radian,atan:atan_radian]}
-# 10 ^, e ^
 
 {data_setvariableto:VALUE:&VARIABLE}
 {set_variable:@VARIABLE%[%v]:VALUE}
 
 {data_changevariableby:VALUE:&VARIABLE}
 {change_variable:@VARIABLE%[%v]:VALUE}
+
+#{get_variable:@VARIABLE%[%v]}
 
 {data_showvariable:&VARIABLE}
 {show_variable:@VARIABLE%[%v]}

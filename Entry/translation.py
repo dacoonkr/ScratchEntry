@@ -67,7 +67,7 @@ class translator:
             if block._literal_mode == "text":
                 return self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())
             if block._literal_mode == "var":
-                return self.block_build(bll, obj, x, y, "get_variable", block._literal_value, [], dict())
+                return self.block_build(bll, obj, x, y, "get_variable_byname", block._literal_value, [], dict())
             if block._literal_mode == "list": #구현 예정
                 return self.block_build(bll, obj, x, y, "text", "", [], dict())
                 pass
@@ -213,7 +213,8 @@ class translator:
         if command == "text" and len(params) == 0: #코드가 내부적으로 만든 text일때는 literal_value를 읽음
             out["params"] = [str(literal_value)]
             return out
-        if command == "get_variable":
+        if command == "get_variable_byname": #변수인데, 이름으로 찾음
+            out["type"] = "get_variable"
             out["params"] = [bll.find_var("var", literal_value)._id]
             return out
         for param in params:

@@ -53,6 +53,9 @@ class snippet:
         else: return []
 
     def run_command(self, bll: BLL.BLLfile, obj: BLL.BLLobj, out, command, in_param, trans):
+        if command[0] == "append":
+            name, block = self._wrapper._definitions[command[1]].build(bll, obj, [], in_param, trans)
+            out.extend(block)
         if command[0] == "sub":
             name, in_param[command[1]] = self._wrapper._definitions[command[2]].build(bll, obj, [], in_param, trans)
         if command[0] == "var":
@@ -61,9 +64,16 @@ class snippet:
                 in_param[command[1]] = literal
             if command[2] == "str":
                 in_param[command[1]] = command[3]
+            if command[2] == "blk":
+                in_param[command[1]] = in_param[command[3]][0] #SUBSTACK의 첫 블럭
         if command[0] == "run":
             rule = self._blocks[command[1]]
             out.append(trans.block_build(bll, obj, 0, 0, rule._type, "", rule._params, in_param))
+        if command[0] == "local":
+            varid = bll._id_gen.new_id()
+            varcode = f"{in_param['FUNC_ID']}_{varid}"
+            in_param["FUNC_LOCAL"].append(varcode)
+            in_param[command[1]] = varcode
 
 class snippet_wrapper:
     def __init__(self):
