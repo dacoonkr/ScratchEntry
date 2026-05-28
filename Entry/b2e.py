@@ -59,6 +59,10 @@ def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedur
                 "A": trans.block_build(bll, obj, 0, 0, type_param + bll._procedure_var_map[i[1]], "", [], dict()),
                 "B": param_block
             })
+    #라벨 붙이기
+    param_block = trans.block_build(bll, obj, 0, 0, "function_field_label", "", [f"&{procedure[0]._id}", "B"], {
+        "B": param_block
+    })
     out["content"] = json.dumps([[trans.block_build(bll, obj, 0, 0, "function_create", "", ["A", "*B"], {
         "A": param_block,
         "B": procedure[1:]

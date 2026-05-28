@@ -206,7 +206,6 @@ dict_text = """
 {repeat_basic:TIMES:*SUBSTACK}
 
 {control_forever:*SUBSTACK}
-/tag rep
 {repeat_inf:*SUBSTACK}
 
 {control_if:CONDITION:*SUBSTACK}
@@ -219,7 +218,6 @@ dict_text = """
 {wait_until_true:CONDITION}
 
 {control_repeat_until:CONDITION:*SUBSTACK}
-/tag rep
 {repeat_while_true:CONDITION:&until:*SUBSTACK}
 
 {control_stop:&STOP_OPTION}
