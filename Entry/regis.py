@@ -5,9 +5,10 @@ import Entry.ent as ENT
 import BLL.bll_logger as LOGGER
 
 class pre_registrator:
-    def __init__(self, function_build, trans):
+    def __init__(self, function_build, var_build, trans):
         self._commands = [] # list[list[str]]
         self._function_builder = function_build #todo: 이걸 넘겨받지 않는 형태로 리모델링
+        self._var_builder = var_build
         self._translator = trans #todo: 글로벌트랜스레이터 사용
         
         for rule in DICT.registration_text.split('\n'):
@@ -38,6 +39,8 @@ class pre_registrator:
     def listup(self, bll: BLL.BLLfile, param):
         if param == "%l":
             return [i._id for i in bll._vars if i._type == "list"]
+        if param == "%o":
+            return [i._id for i in bll._objs if i._displayname != "Stage"]
 
     def run_command(self, bll: BLL.BLLfile, out: ENT.ENTfile, command, in_param):
         if command[0] == "freg":
@@ -63,3 +66,25 @@ class pre_registrator:
                 locals = in_param["FUNC_LOCAL"],
                 ret = in_param["FUNC_RETURN"])
             out._json["functions"].append(func_json)
+        if command[0] == "creg":
+            regis = BLL.BLLregistration()
+            regis._type = "chunk"
+            target = BLL.BLLobj(bll)
+            target._id = in_param["DEPEND"]
+            regis._target = target
+            regis._params = in_param
+            regis._snippet = SNIP.global_wrapper._definitions[command[1]]
+            bll._registrations.append(regis)
+        if command[0] == "vreg":
+            #레지스터된 변수명은 system_name system:obj_name으로 생성됨
+            var = BLL.BLLvar()
+            var._id = bll._id_gen.new_id()
+            var._type = "var"
+            var._initial = command[2]
+            if in_param["DEPEND"] == "global":
+                var._displayname = f"system_{command[1]}"
+            else: #로컬
+                var._displayname = f"system:{in_param['DEPEND']}_{command[1]}"
+                var._dependency = in_param["DEPEND"]
+            bll._vars.append(var)
+            bll._pre_registrations_map[var._displayname] = var._id

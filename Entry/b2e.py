@@ -19,7 +19,7 @@ def b2e(bll: BLL.BLLfile, input_path):
         "name": "Stage"
     }]
     LOGGER.log(2, "프리레지스트레이션 로드 시작")
-    pre_registrator = REGIS.pre_registrator(function_build, trans) #실행 전 레지스트레이션
+    pre_registrator = REGIS.pre_registrator(function_build, var_build, trans) #실행 전 레지스트레이션
     pre_registrator.mount(bll, out)
     LOGGER.log(2, f"프리레지스트레이션 로드 완료")
     registration_match = dict() #실행 후 레지스트레이션 obj_id:index
@@ -39,8 +39,9 @@ def b2e(bll: BLL.BLLfile, input_path):
         LOGGER.log(2, f"변수 등록: {var._displayname}")
         out._json["variables"].append(var_build(var_pos_gen, var))
     for regis in bll._registrations:
-        LOGGER.log(2, f"레지스트레이션 등록: {regis._id}")
-        out._json["objects"][registration_match[regis._target._id]]["script"].append(regis._snippet.build(bll, regis._target, regis._params, dict(), trans))
+        LOGGER.log(2, f"레지스트레이션 등록: {regis._snippet._type} to {regis._target._id}")
+        name, code = regis._snippet.build(bll, regis._target, [], regis._params, trans)
+        out._json["objects"][registration_match[regis._target._id]]["script"].append(code)
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
 

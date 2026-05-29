@@ -199,4 +199,10 @@ end
 /sub RET findlist_return
 /var FUNC_RETURN blk RET
 end
+
+@chunk,startclone
+{when_clone_start}
+/var VAR str isclone
+{set_variable:@VAR%[%plv]:&&1}
+end
 """

@@ -29,7 +29,7 @@ class translator:
             if rule.startswith("/"):
                 commands.append(rule[1:].split())
 
-    def format(self, text, bll: BLL.BLLfile, obj: BLL.BLLobj, format_rule):
+    def format(self, text, bll: BLL.BLLfile, obj: BLL.BLLobj, format_rule, in_param):
         out = text
         for i in format_rule.strip('[]').split(','):
             if i == "%o":
@@ -52,6 +52,10 @@ class translator:
                 out = obj.find_src(out)._id
             elif i == "%v":
                 out = bll.find_var("var", out, obj._id)._id
+            elif i == "%plv":
+                out = bll._pre_registrations_map[f"system:{in_param["DEPEND"]}_{out}"]
+            elif i == "%pgv":
+                out = bll._pre_registrations_map[f"system_{out}"]
             elif i == "%l":
                 out = bll.find_var("list", out, obj._id)._id
             elif len(i) == 0: pass
@@ -183,7 +187,7 @@ class translator:
                 if "%" in i:
                     format_rule = i[i.find('%') + 1:]
                     i = i[:i.find('%')]
-                if i.startswith("&"): name += self.format(in_param[i[1:]], bll, obj, format_rule)
+                if i.startswith("&"): name += self.format(in_param[i[1:]], bll, obj, format_rule, in_param)
                 else: name += i
             in_param[command[1]] = name
         if command[0] == "tag":
@@ -237,7 +241,7 @@ class translator:
                 elif param.startswith("+"):
                     child = self.block_build(bll, obj, 0, 0, "text", in_param[param[1:]], [], dict())
                 elif param.startswith("@"):
-                    child = self.format(in_param[param[1:]], bll, obj, format_rule)
+                    child = self.format(in_param[param[1:]], bll, obj, format_rule, in_param)
                 elif param.startswith("?"):
                     if param == "?b":
                         child = bll.find_obj("Stage")._id

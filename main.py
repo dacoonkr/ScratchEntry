@@ -15,7 +15,6 @@ if __name__ == "__main__":
     parser.add_argument('--preserve', action='store_true', help='이벤트에 연결되지 않아 실행되지 않는 블럭까지 변환하기')
     parser.add_argument('--repboost', action='store_true', help='반복문 고속화(버그성 기믹 사용)')
     parser.add_argument('--log', default=0, help = '로그 레벨')
-    #parser.add_argument('--speedup', action='store_true', help='반복 가속하기')
     OPT.global_option = args = parser.parse_args()
 
     #output 지우기
