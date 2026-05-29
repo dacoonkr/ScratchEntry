@@ -141,4 +141,62 @@ end
 /sub RET calcexp_return
 /var FUNC_RETURN blk RET
 end
+
+@stack,joinlist_substack
+{set_func_variable:@IDX:{calc_basic:{get_func_variable:@IDX}:&PLUS:&&1}}
+{set_func_variable:@RET:{combine_something:&!:{get_func_variable:@RET}:&!:&& }}
+{set_func_variable:@RET:{combine_something:&!:{get_func_variable:@RET}:&!:{value_of_index_from_list:&!:@LIST:&!:{get_func_variable:@IDX}}}}
+/append repskip
+end
+
+@stack,joinlist_ifstack
+{set_func_variable:@IDX:&&1}
+{set_func_variable:@RET:{value_of_index_from_list:&!:@LIST:&!:&&1}}
+/sub SUBSTK joinlist_substack
+{repeat_basic:{calc_basic:{length_of_list:&!:@LIST}:&MINUS:&&1}:*SUBSTK}
+end
+
+@stack,joinlist_return
+{replace_string:&!:{get_func_variable:@RET}:&!:&&$marker_empty$:&!:&&}
+end
+
+@func,joinlist
+/name join &LIST
+/local RET
+/local IDX
+# 버그 (빈 문자열이 0으로 대체됨) 때문에 빈 문자열을 $marker_empty$로 표시
+{set_func_variable:@RET:&&$marker_empty$}
+/sub IFSTK joinlist_ifstack
+{_if:{boolean_basic_operator:&&0:&LESS:{length_of_list:&!:@LIST}}:*IFSTK}
+/sub RET joinlist_return
+/var FUNC_RETURN blk RET
+end
+
+@stack,findlist_ifstack
+{set_func_variable:@RET:{get_func_variable:@IDX}}
+{stop_repeat}
+end
+
+@stack,findlist_substack
+/sub IFSTK findlist_ifstack
+{_if:{boolean_basic_operator:ITEM:&EQUAL:{value_of_index_from_list:&!:@LIST:&!:{get_func_variable:@IDX}}}:*IFSTK}
+{set_func_variable:@IDX:{calc_basic:{get_func_variable:@IDX}:&PLUS:&&1}}
+/append repskip
+end
+
+@stack,findlist_return
+{get_func_variable:@RET}
+end
+
+@func,findlist,ITEM
+/name find &LIST
+/local RET
+/local IDX
+{set_func_variable:@RET:&&0}
+{set_func_variable:@IDX:&&1}
+/sub SUBSTK findlist_substack
+{repeat_basic:{length_of_list:&!:@LIST}:*SUBSTK}
+/sub RET findlist_return
+/var FUNC_RETURN blk RET
+end
 """

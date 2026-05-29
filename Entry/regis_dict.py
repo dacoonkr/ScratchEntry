@@ -15,7 +15,10 @@ registration_text = """
 /freg seeto
 /freg sendcast
 /freg waitcast
-/vareach LIST str 1 %l
-/freg clearlist
 /freg calcexp
+#리스트관련
+/vareach LIST str 3 %l
+/freg clearlist
+/freg joinlist
+/freg findlist
 """

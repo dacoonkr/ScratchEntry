@@ -377,7 +377,9 @@ dict_text = """
 {data_itemoflist:INDEX:&LIST}
 {value_of_index_from_list:&!:@LIST%[%l]:&!:INDEX}
 
-#{data_itemnumoflist:ITEM:&LIST}
+{data_itemnumoflist:ITEM:&LIST}
+/cat CALL find &LIST%[%l]
+{!!CALL:ITEM}
 
 {data_lengthoflist:&LIST}
 {length_of_list:&!:@LIST%[%l]}

@@ -153,11 +153,12 @@ def var_build(pos_gen: UTIL.var_position_generator, var: BLL.BLLvar):
     out["name"] = var._displayname
     out["id"] = var._id
     out["visible"] = False
-    out["value"] = var._initial
     if var._type == "var":
+        out["value"] = var._initial
         out["variableType"] = "variable"
         out["x"], out["y"] = pos_gen.new_var()
     elif var._type == "list":
+        out["array"] = [{"data": i} for i in var._initial]
         out["variableType"] = "list"
         out["x"], out["y"] = pos_gen.new_list()
         out["width"], out["height"] = 100, 120

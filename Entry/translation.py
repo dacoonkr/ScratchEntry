@@ -69,8 +69,9 @@ class translator:
             if block._literal_mode == "var":
                 return self.block_build(bll, obj, x, y, "get_variable_byname", block._literal_value, [], dict())
             if block._literal_mode == "list": #구현 예정
-                return self.block_build(bll, obj, x, y, "text", "", [], dict())
-                pass
+                return self.block_build(bll, obj, x, y, "!!CALL", "", [], {
+                    "CALL": f"join{bll.find_var('list', block._literal_value)._id}"
+                }) #옵젝간 변수구분 수정 필요
         if block._command == "argument_reporter_string_number" or block._command == "argument_reporter_boolean": #함수 인자 값
             value = block._field["VALUE"]
             if value not in bll._procedure_var_map:
