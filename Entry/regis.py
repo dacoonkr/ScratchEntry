@@ -5,10 +5,9 @@ import Entry.ent as ENT
 import BLL.bll_logger as LOGGER
 
 class pre_registrator:
-    def __init__(self, function_build, var_build, trans):
+    def __init__(self, function_build, trans):
         self._commands = [] # list[list[str]]
         self._function_builder = function_build #todo: 이걸 넘겨받지 않는 형태로 리모델링
-        self._var_builder = var_build
         self._translator = trans #todo: 글로벌트랜스레이터 사용
         
         for rule in DICT.registration_text.split('\n'):
@@ -30,6 +29,7 @@ class pre_registrator:
                     if command[2] == "str":
                         in_param[command[1]] = item
                     for j in range(int(command[3])):
+                        print(in_param)
                         self.run_command(bll, out, self._commands[i + 1 + j], in_param)
             else: 
                 self.run_command(bll, out, command, dict())
@@ -72,7 +72,7 @@ class pre_registrator:
             target = BLL.BLLobj(bll)
             target._id = in_param["DEPEND"]
             regis._target = target
-            regis._params = in_param
+            regis._params = in_param.copy()
             regis._snippet = SNIP.global_wrapper._definitions[command[1]]
             bll._registrations.append(regis)
         if command[0] == "vreg":

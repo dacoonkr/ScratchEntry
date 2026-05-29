@@ -19,7 +19,7 @@ def b2e(bll: BLL.BLLfile, input_path):
         "name": "Stage"
     }]
     LOGGER.log(2, "프리레지스트레이션 로드 시작")
-    pre_registrator = REGIS.pre_registrator(function_build, var_build, trans) #실행 전 레지스트레이션
+    pre_registrator = REGIS.pre_registrator(function_build, trans) #실행 전 레지스트레이션
     pre_registrator.mount(bll, out)
     LOGGER.log(2, f"프리레지스트레이션 로드 완료")
     registration_match = dict() #실행 후 레지스트레이션 obj_id:index

@@ -53,7 +53,7 @@ class translator:
             elif i == "%v":
                 out = bll.find_var("var", out, obj._id)._id
             elif i == "%plv":
-                out = bll._pre_registrations_map[f"system:{in_param["DEPEND"]}_{out}"]
+                out = bll._pre_registrations_map[f"system:{in_param['DEPEND']}_{out}"]
             elif i == "%pgv":
                 out = bll._pre_registrations_map[f"system_{out}"]
             elif i == "%l":
