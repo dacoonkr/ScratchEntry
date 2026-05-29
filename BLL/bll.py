@@ -22,9 +22,10 @@ class BLLfile:
             if i._displayname.lower() == displayname.lower():
                 return i
 
-    def find_var(self, mode, displayname):
+    def find_var(self, mode, displayname, obj_id):
         for i in self._vars:
-            if i._type == mode and i._displayname == displayname:
+            if i._type == mode and i._displayname == displayname \
+                               and (len(i._dependency) == 0 or obj_id == i._dependency):
                 return i
 
 class BLLobj:

@@ -51,9 +51,9 @@ class translator:
             elif i == "%c":
                 out = obj.find_src(out)._id
             elif i == "%v":
-                out = bll.find_var("var", out)._id
+                out = bll.find_var("var", out, obj._id)._id
             elif i == "%l":
-                out = bll.find_var("list", out)._id
+                out = bll.find_var("list", out, obj._id)._id
             elif len(i) == 0: pass
             else:
                 bef, aft = i.split(':')
@@ -70,7 +70,7 @@ class translator:
                 return self.block_build(bll, obj, x, y, "get_variable_byname", block._literal_value, [], dict())
             if block._literal_mode == "list": #구현 예정
                 return self.block_build(bll, obj, x, y, "!!CALL", "", [], {
-                    "CALL": f"join{bll.find_var('list', block._literal_value)._id}"
+                    "CALL": f"join{bll.find_var('list', block._literal_value, obj._id)._id}"
                 }) #옵젝간 변수구분 수정 필요
         if block._command == "argument_reporter_string_number" or block._command == "argument_reporter_boolean": #함수 인자 값
             value = block._field["VALUE"]
@@ -216,7 +216,7 @@ class translator:
             return out
         if command == "get_variable_byname": #변수인데, 이름으로 찾음
             out["type"] = "get_variable"
-            out["params"] = [bll.find_var("var", literal_value)._id]
+            out["params"] = [bll.find_var("var", literal_value, obj._id)._id]
             return out
         for param in params:
             if type(param) == str:
