@@ -62,11 +62,17 @@ dict_text = """
 {event_broadcast:@@BROADCAST_INPUT}
 {message_cast:@BROADCAST_INPUT%[%b]}
 
+{event_broadcast:@@BROADCAST_INPUT}
+{message_cast:@BROADCAST_INPUT%[%b]}
+
 {event_broadcast:BROADCAST_INPUT}
 {!sendcast:BROADCAST_INPUT}
 
 {event_broadcast_menu:&BROADCAST_INPUT}
 {text:@BROADCAST_INPUT}
+
+{event_broadcastandwait:@@BROADCAST_INPUT}
+{message_cast_wait:@BROADCAST_INPUT%[%b]}
 
 {event_broadcastandwait:@@BROADCAST_INPUT}
 {message_cast_wait:@BROADCAST_INPUT%[%b]}
@@ -89,6 +95,9 @@ dict_text = """
 {motion_turnleft:DEGREES}
 {rotate_relative:{calc_basic:&&0:&MINUS:DEGREES}}
 
+{motion_goto:@TO}
+{locate:@TO%[_mouse_:mouse,%o]}
+
 {motion_goto:TO}
 {!moveto:TO:&&0}
 
@@ -98,6 +107,9 @@ dict_text = """
 {motion_gotoxy:X:Y}
 {locate_xy:X:Y}
 
+{motion_glideto:SECS:@TO}
+{locate_object_time:SECS:@TO%[_mouse_:mouse,%o]}
+
 {motion_glideto:SECS:TO}
 {!moveto:TO:SECS}
 
@@ -106,6 +118,9 @@ dict_text = """
 
 {motion_pointindirection:DIRECTION}
 {rotate_absolute:DIRECTION}
+
+{motion_pointtowards:@TOWARDS}
+{see_angle_object:@TOWARDS%[_mouse_:mouse,%o]}
 
 {motion_pointtowards:TOWARDS}
 {!seeto:TOWARDS}

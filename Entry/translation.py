@@ -112,7 +112,11 @@ class translator:
                     in_param[param] = block._param[param]._literal_value #str
                 elif param.startswith("@"):
                     param = param[1:]
-                    in_param[param] = block._param[param]._blocks[0]._field[param] #str
+                    if block._param[param]._blocks[0]._command.endswith("_menu"):
+                        in_param[param] = block._param[param]._blocks[0]._field[param] #str
+                    else:
+                        matched = False
+                        break
                 elif param.startswith("&&"):
                     args = param[2:].split('=')
                     if block._field[args[0]] != args[1]:
