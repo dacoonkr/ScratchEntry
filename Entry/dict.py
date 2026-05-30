@@ -5,12 +5,14 @@ grammer = """
 # @@    : 파람 중 리터럴인 것을 문자열 취급
 # &     : 필드 문자열
 # *     : 파람 중 STATEMENT
-# &&~=~ : 필터링-필드 문자열이 일치하는것만 
-# &#~=~ : 필터링-리터럴 값이 일치하는것만 
+# &&~=~ : 필터링-필드 문자열이 일치하는것만
+# &#~=~ : 필터링-리터럴 값이 일치하는것만
+#     ~ : ,로 구분해서 여러 개 입력 가능
 # &@    : 필터링-환경 옵션이 존재하는 것만
 #처리 구분(/로 시작)
 #var name type label (label이 _new_일시 개별로 생성)
 #    cast: 신호
+#    localview: 로컬변수 모니터링 인덱스
 #creg ID obj param1..: 스니펫(청크 타입) 등록
 #    obj: name or self
 #cat name str1 str2 str3... : 각 인자를 모두 합친 이름으로 name 값 변경
@@ -24,6 +26,7 @@ grammer = """
 # &!    : 필드 null값
 # &~~   : 필드 문자열값
 # &&~~  : number 리터럴 블럭 생성
+# &@~~ : number 리터럴 블럭 생성(파라미터 사용)
 # @~~   : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
 # ?b    : 스테이지 오브젝트 id
 # ?B    : 다음 배경 전환 신호
@@ -279,8 +282,12 @@ dict_text = """
 {sensing_timer}
 {get_project_timer_value}
 
-{sensing_of:@OBJECT:&PROPERTY}
+{sensing_of:@OBJECT:&PROPERTY:&&PROPERTY=x position,y position,direction,costume name,costume #,backdrop name,backdrop #}
 {coordinate_object:&!:@OBJECT%[%o]:&!:@PROPERTY%[x position:x,y position:y,direction:rotation,costume name:picture_name,costume #:picture_index,backdrop name:picture_name,backdrop #:picture_index]}
+
+{sensing_of:@OBJECT:&PROPERTY}
+/var IDX localview
+{value_of_index_from_list:&!:&**sys_local_monitor%[%l]:&!:&@IDX}
 
 {sensing_current:&CURRENTMENU}
 {get_date:&!:@CURRENTMENU%[DAYOFWEEK:DAY_OF_WEEK]}
@@ -349,9 +356,11 @@ dict_text = """
 {calc_operation:&!:NUM:&!:@OPERATOR%[ceiling:ceil,sqrt:root,acos:acos_radian,asin:asin_radian,atan:atan_radian]}
 
 {data_setvariableto:VALUE:&VARIABLE}
+/tag updatevar
 {set_variable:@VARIABLE%[%v]:VALUE}
 
 {data_changevariableby:VALUE:&VARIABLE}
+/tag updatevar
 {change_variable:@VARIABLE%[%v]:VALUE}
 
 #{get_variable:@VARIABLE%[%v]}

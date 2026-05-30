@@ -18,10 +18,20 @@ def b2e(bll: BLL.BLLfile, input_path):
         "id": scene,
         "name": "Stage"
     }]
+
     LOGGER.log(2, "프리레지스트레이션 로드 시작")
     pre_registrator = REGIS.pre_registrator(function_build, trans) #실행 전 레지스트레이션
     pre_registrator.mount(bll, out)
     LOGGER.log(2, f"프리레지스트레이션 로드 완료")
+
+    for var in bll._vars:
+        if len(var._dependency) > 0 and not var._displayname.startswith("**sys"):
+            bll._local_var_monitor[var._id] = len(bll._local_var_monitor) + 1
+            bll.find_var("list", "**sys_local_monitor", "")._initial.append(var._initial)
+    for var in bll._vars:
+        LOGGER.log(2, f"변수 등록: {var._displayname}")
+        out._json["variables"].append(var_build(var_pos_gen, var))
+
     registration_match = dict() #실행 후 레지스트레이션 obj_id:index
     for obj_i in bll._objs:
         LOGGER.log(2, f"오브젝트 생성 시작: {obj_i._displayname}")
@@ -32,16 +42,19 @@ def b2e(bll: BLL.BLLfile, input_path):
         for procedure in procedures:
             LOGGER.log(2, f"함수 등록: 소유자({obj_i._displayname}) 인수({','.join([k[1] for k in procedure[0]._arguments])})")
             out._json["functions"].append(function_build(bll, obj, procedure, trans))
+    
     for cast in bll._casts:
         LOGGER.log(2, f"신호 등록: {cast._displayname}")
         out._json["messages"].append(broadcast_build(bll, cast))
-    for var in bll._vars:
-        LOGGER.log(2, f"변수 등록: {var._displayname}")
-        out._json["variables"].append(var_build(var_pos_gen, var))
+    
     for regis in bll._registrations:
         LOGGER.log(2, f"레지스트레이션 등록: {regis._snippet._type} to {regis._target._id}")
         name, code = regis._snippet.build(bll, regis._target, [], regis._params, trans)
-        out._json["objects"][registration_match[regis._target._id]]["script"].append(code)
+        target = out._json["objects"][registration_match[regis._target._id]]["script"]
+        if regis._frontlayer:
+            target.insert(0, code)
+        else: target.append(code)
+
     out._json["interface"]["object"] = bll._objs[0]._id
     return out
 
@@ -50,11 +63,11 @@ def function_build(bll: BLL.BLLfile, obj: BLL.BLLobj, procedure: BLL.BLLprocedur
     out["id"] = procedure[0]._id
     out["type"] = ("normal" if ret == None else "value")
     out["localVariables"] = []
-    for i in locals:
+    for i in locals: #[[name,id] ...]
         localvar = dict()
-        localvar["name"] = i
+        localvar["name"] = i[0]
         localvar["value"] = 0
-        localvar["id"] = i
+        localvar["id"] = i[1]
         out["localVariables"].append(localvar)
     out["useLocalVariables"] = (len(locals) > 0)
     param_block = None

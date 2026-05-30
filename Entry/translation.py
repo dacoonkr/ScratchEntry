@@ -51,13 +51,13 @@ class translator:
             elif i == "%c":
                 out = obj.find_src(out)._id
             elif i == "%v":
-                out = bll.find_var("var", out, obj._id)._id
+                out = bll.find_var("var", out, None if obj == None else obj._id)._id
             elif i == "%plv":
-                out = bll._pre_registrations_map[f"system:{in_param['DEPEND']}_{out}"]
+                out = bll._pre_registrations_map[f"**sys:{in_param['DEPEND']}_{out}"]
             elif i == "%pgv":
-                out = bll._pre_registrations_map[f"system_{out}"]
+                out = bll._pre_registrations_map[f"**sys_{out}"]
             elif i == "%l":
-                out = bll.find_var("list", out, obj._id)._id
+                out = bll.find_var("list", out, None if obj == None else obj._id)._id
             elif len(i) == 0: pass
             else:
                 bef, aft = i.split(':')
@@ -66,22 +66,22 @@ class translator:
                     break
         return out
 
-    def translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock):
+    def translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock) -> list[dict]:
         if block._is_literal:
             if block._literal_mode == "text":
-                return self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())
+                return [self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())]
             if block._literal_mode == "var":
-                return self.block_build(bll, obj, x, y, "get_variable_byname", block._literal_value, [], dict())
+                return [self.block_build(bll, obj, x, y, "get_variable_byname", block._literal_value, [], dict())]
             if block._literal_mode == "list": #구현 예정
-                return self.block_build(bll, obj, x, y, "!!CALL", "", [], {
+                return [self.block_build(bll, obj, x, y, "!!CALL", "", [], {
                     "CALL": f"join{bll.find_var('list', block._literal_value, obj._id)._id}"
-                }) #옵젝간 변수구분 수정 필요
+                })] #옵젝간 변수구분 수정 필요
         if block._command == "argument_reporter_string_number" or block._command == "argument_reporter_boolean": #함수 인자 값
             value = block._field["VALUE"]
             if value not in bll._procedure_var_map:
                 bll._procedure_var_map[value] = bll._id_gen.new_id()
             type_param = "stringParam_" if block._command[18] == "s" else "booleanParam_"
-            return self.block_build(bll, obj, 0, 0, type_param + bll._procedure_var_map[value], "", [], dict())
+            return [self.block_build(bll, obj, 0, 0, type_param + bll._procedure_var_map[value], "", [], dict())]
         if block._command == "procedures_call": #함수 호출
             value = f"{obj._id}:{block._mutation['proccode']}"
             if value not in bll._procedures_map:
@@ -95,11 +95,11 @@ class translator:
                 if type(block._param[param]) == BLL.BLLblocks: #단일블럭
                     in_param[str(cnt)] = block._param[param]._blocks[0] #BLLblock
                 cnt += 1
-            return self.block_build(bll, obj, x, y, f"func_{bll._procedures_map[value]}", 0, params, in_param)
+            return [self.block_build(bll, obj, x, y, f"func_{bll._procedures_map[value]}", 0, params, in_param)]
             
         if not block._command in self.rules:
             LOGGER.log(1, f"정의를 찾을 수 없음: {block._command}")
-            return self.block_build(bll, obj, x, y, "show", 0, [], dict())
+            return [self.block_build(bll, obj, x, y, "show", 0, [], dict())]
         rules, in_param = self.rules[block._command], dict() #key:
         for rule in rules: #여러 패턴 탐색
             matched = True
@@ -119,12 +119,12 @@ class translator:
                         break
                 elif param.startswith("&&"):
                     args = param[2:].split('=')
-                    if block._field[args[0]] != args[1]:
+                    if block._field[args[0]] not in args[1].split(','):
                         matched = False
                         break
                 elif param.startswith("&#"):
                     args = param[2:].split('=')
-                    if block._param[args[0]]._literal_value != args[1]:
+                    if block._param[args[0]]._literal_value not in args[1].split(','):
                         matched = False
                         break
                 elif param.startswith("&@"):
@@ -139,7 +139,7 @@ class translator:
                     out = []
                     if param in block._param:
                         for cur in block._param[param]._blocks: #BLLblock
-                            out.append(self.translation(bll, obj, 0, 0, cur))
+                            out.extend(self.translation(bll, obj, 0, 0, cur))
                     in_param[param] = out
                 elif type(block._param[param]) == BLL.BLLblock: #리터럴
                     if param not in block._param: #빈칸, 대부분 미완성 코드이므로 중요치 않음
@@ -152,13 +152,23 @@ class translator:
                 block_type = rule[1]._type
                 for command in rule[1]._commands:
                     self.run_command(bll, obj, command, in_param)
-                if "tag" in in_param: 
-                    if ("rep" in in_param["tag"]) and OPT.global_option.repboost:
-                        LOGGER.log(3, f"적용됨: repboost")
-                        in_param["SUBSTACK"].append(SNIP.global_wrapper._definitions["repskip"].build(bll, obj, [], {}, self)[1][0]) #수정 중
+                if ("tag" in in_param) and ("rep" in in_param["tag"]) and OPT.global_option.repboost:
+                    LOGGER.log(3, f"적용됨: repboost")
+                    in_param["SUBSTACK"].append(SNIP.global_wrapper._definitions["repskip"].build(bll, obj, [], {}, self)[1][0])
                 LOGGER.log(3, f"{block._command}: {in_param}")
                 out = self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)
-                return out
+                if ("tag" in in_param) and ("updatevar" in in_param["tag"]):
+                    var_id = bll.find_var("var", in_param["VARIABLE"], obj._id)._id
+                    if var_id in bll._local_var_monitor:
+                        LOGGER.log(3, f"적용됨: updatevar")
+                        out2 = SNIP.global_wrapper._definitions["updatevarcall"].build(bll, obj, [
+                            bll._pre_registrations_map[f"**sys:{obj._id}_isclone"],
+                            bll._local_var_monitor[var_id],
+                            var_id
+                        ], {}, self)[1][0]
+                        return [out, out2]
+                    else: return [out] #전역변수일 시 관리 필요 없음
+                else: return [out]
             
         LOGGER.log(1, f"필드가 매칭된 정의를 찾을 수 없음: {block._command}")
 
@@ -173,6 +183,10 @@ class translator:
                     bll._casts.append(cast)
                     value = cast._id
                 else: value = bll.find_cast(command[3])
+            elif command[2] == "localview": #require OBJECT, PROPERTY
+                obj_id = bll.find_obj(in_param["OBJECT"])._id
+                var_id = bll.find_var("var", in_param["PROPERTY"], obj_id)._id
+                value = str(bll._local_var_monitor[var_id])
             in_param[command[1]] = value
         if command[0] == "creg":
             params = []
@@ -240,8 +254,10 @@ class translator:
                 if param == "&!": pass
                 elif param.startswith("&&"):
                     child = self.block_build(bll, obj, 0, 0, "text", param[2:], [], dict())
+                elif param.startswith("&@"):
+                    child = self.block_build(bll, obj, 0, 0, "text", in_param[param[2:]], [], dict())
                 elif param.startswith("&"):
-                    child = param[1:]
+                    child = self.format(param[1:], bll, obj, format_rule, in_param)
                 elif param.startswith("+"):
                     child = self.block_build(bll, obj, 0, 0, "text", in_param[param[1:]], [], dict())
                 elif param.startswith("@"):
@@ -255,7 +271,7 @@ class translator:
                     if type(in_param[param]) == dict:
                         child = in_param[param]
                     elif type(in_param[param]) == BLL.BLLblock:
-                        child = self.translation(bll, obj, 0, 0, in_param[param])
+                        child = self.translation(bll, obj, 0, 0, in_param[param])[0]
                 out["params"].append(child)
 
             elif type(param) == RULE.rule_to_ent:

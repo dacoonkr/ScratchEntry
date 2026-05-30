@@ -72,7 +72,7 @@ class snippet:
         if command[0] == "local":
             varid = bll._id_gen.new_id()
             varcode = f"{in_param['FUNC_ID']}_{varid}"
-            in_param["FUNC_LOCAL"].append(varcode)
+            in_param["FUNC_LOCAL"].append([command[1], varcode])
             in_param[command[1]] = varcode
 
 class snippet_wrapper:

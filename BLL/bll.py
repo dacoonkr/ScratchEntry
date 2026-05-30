@@ -10,6 +10,7 @@ class BLLfile:
         self._id_gen = id_gen
         self._stat_block_cnt = 0
         self._registrations = [] #BLLregistration
+        self._local_var_monitor = {} #var_id : idx(1base)
         self._pre_registrations_map = {} #name, func id
         
     def find_obj(self, displayname):
@@ -103,3 +104,4 @@ class BLLregistration:
         self._target = None #BLLobj
         self._params = {}
         self._snippet = None #snippet
+        self._frontlayer = False #변환 코드 생성 전에 등록

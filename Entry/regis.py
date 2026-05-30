@@ -29,7 +29,6 @@ class pre_registrator:
                     if command[2] == "str":
                         in_param[command[1]] = item
                     for j in range(int(command[3])):
-                        print(in_param)
                         self.run_command(bll, out, self._commands[i + 1 + j], in_param)
             else: 
                 self.run_command(bll, out, command, dict())
@@ -38,7 +37,7 @@ class pre_registrator:
 
     def listup(self, bll: BLL.BLLfile, param):
         if param == "%l":
-            return [i._id for i in bll._vars if i._type == "list"]
+            return [i._id for i in bll._vars if i._type == "list" and not i._displayname.startswith("**sys")]
         if param == "%o":
             return [i._id for i in bll._objs if i._displayname != "Stage"]
 
@@ -73,18 +72,27 @@ class pre_registrator:
             target._id = in_param["DEPEND"]
             regis._target = target
             regis._params = in_param.copy()
+            regis._frontlayer = True
             regis._snippet = SNIP.global_wrapper._definitions[command[1]]
             bll._registrations.append(regis)
         if command[0] == "vreg":
-            #레지스터된 변수명은 system_name system:obj_name으로 생성됨
+            #레지스터된 변수명은 **sys_name **sys:obj_name으로 생성됨
             var = BLL.BLLvar()
             var._id = bll._id_gen.new_id()
             var._type = "var"
             var._initial = command[2]
             if in_param["DEPEND"] == "global":
-                var._displayname = f"system_{command[1]}"
+                var._displayname = f"**sys_{command[1]}"
             else: #로컬
-                var._displayname = f"system:{in_param['DEPEND']}_{command[1]}"
+                var._displayname = f"**sys:{in_param['DEPEND']}_{command[1]}"
                 var._dependency = in_param["DEPEND"]
             bll._vars.append(var)
             bll._pre_registrations_map[var._displayname] = var._id
+        if command[0] == "lreg":
+            lis = BLL.BLLvar()
+            lis._id = bll._id_gen.new_id()
+            lis._type = "list"
+            lis._displayname = command[1]
+            lis._initial = []
+            bll._vars.append(lis)
+            bll._pre_registrations_map[lis._displayname] = lis._id

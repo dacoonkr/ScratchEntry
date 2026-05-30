@@ -27,6 +27,7 @@ grammer = """
 # &!   : 필드 null값
 # &~~  : 필드 문자열값
 # &&~~ : number 리터럴 블럭 생성
+# &@~~ : number 리터럴 블럭 생성(파라미터 사용)
 # +    : 필드 문자열 값을 사용하되, 리터럴을 생성해 변환하여 사용
 # @~~  : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
 # *~~  : STATEMENT
@@ -204,5 +205,18 @@ end
 {when_clone_start}
 /var VAR str isclone
 {set_variable:@VAR%[%plv]:&&1}
+end
+
+@chunk,updatevar_substack
+{change_value_list_index:&**sys_local_monitor%[%l]:IDX:VALUE}
+end
+
+@func,updatevar,CLONE,IDX,VALUE
+/sub SUBSTK updatevar_substack
+{_if:{boolean_basic_operator:CLONE:&EQUAL:&&0}:*SUBSTK}
+end
+
+@chunk,updatevarcall,CLONE,IDX,VAR
+{!updatevar:{get_variable:@CLONE}:&@IDX:{get_variable:@VAR}}
 end
 """

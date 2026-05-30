@@ -13,12 +13,12 @@ def code_build(bll: BLL.BLLfile, obj: BLL.BLLobj, code: list[BLL.BLLblocks]):
             #[procedure, block...]
             cur.append(parse_procedure(bll, obj, blocks._blocks[0]))
             for block in blocks._blocks[1:]:
-                cur.append(trans.translation(bll, obj, 0, 0, block))
+                cur.extend(trans.translation(bll, obj, 0, 0, block))
             procedure_out.append(cur)
         else:
             x, y = block_pos_gen.new_block()
             for block in blocks._blocks: #block: BLL.BLLblock
-                cur.append(trans.translation(bll, obj, x, y, block))
+                cur.extend(trans.translation(bll, obj, x, y, block))
             out.append(cur)
         
     return out, procedure_out

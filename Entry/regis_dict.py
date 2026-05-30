@@ -7,6 +7,7 @@ grammer = """
 #creg ID: 스니펫(청크 타입) 등록(파람 필요 DEPEND : obj_id or global)
 #vreg name: 변수 등록(파람 필요 DEPEND : obj_id or global)
 #  obj: name or every
+#lreg name: 리스트 등록(무조건 전역)
 #vareach name type line src (line:반복문에 포함될 줄 수, 빈 줄 포함X, 반복 중첩X)
 #    [~,~,...]
 #    %l : 리스트 이름 목록
@@ -14,6 +15,10 @@ grammer = """
 """
 
 registration_text = """
+#지역변수모니터
+/lreg **sys_local_monitor
+/freg updatevar
+#매크로 함수 등록
 /freg moveto
 /freg seeto
 /freg sendcast
