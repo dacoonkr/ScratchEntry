@@ -22,7 +22,7 @@ def code_search(id_gen, id_map, json, cur_id):
                     tmp.literal("var", param_v[1])
                 elif param_v[0] == 13:
                     tmp.literal("list", param_v[1])
-                else: tmp.literal("text", param_v[1])
+                else: tmp.literal("text", param_v[1]) #COLOR=9
                 block._param[param] = tmp
         for field in json[cur_id]["fields"]:
             block._field[field] = json[cur_id]["fields"][field][0]

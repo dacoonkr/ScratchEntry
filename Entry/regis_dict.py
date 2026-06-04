@@ -24,6 +24,13 @@ registration_text = """
 /freg sendcast
 /freg waitcast
 /freg calcexp
+#색관련
+/freg clamp_looping
+/freg clamp
+/freg getbrightness_from_rgb
+/freg getsaturation_from_rgb
+/freg gethue_from_rgb
+/freg setpencolor_by_hsv
 #리스트관련
 /vareach LIST str 3 %l
 /freg clearlist

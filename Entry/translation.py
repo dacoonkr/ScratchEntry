@@ -128,7 +128,9 @@ class translator:
                         matched = False
                         break
                 elif param.startswith("&@"):
-                    if not getattr(OPT.global_option, param[2:]):
+                    args = param[2:].split('=')
+                    paths = args[0].split('.')
+                    if block._param[paths[0]]._blocks[0]._field[paths[1]] not in args[1].split(','):
                         matched = False
                         break
                 elif param.startswith("&"):
@@ -150,13 +152,19 @@ class translator:
             if matched:
                 #커맨드 실행
                 block_type = rule[1]._type
+                in_param["DEPEND"] = obj._id
+                out_chunks = []
                 for command in rule[1]._commands:
-                    self.run_command(bll, obj, command, in_param)
+                    out_chunks.extend(self.run_command(bll, obj, command, in_param))
                 if ("tag" in in_param) and ("rep" in in_param["tag"]) and OPT.global_option.repboost:
                     LOGGER.log(3, f"적용됨: repboost")
                     in_param["SUBSTACK"].append(SNIP.global_wrapper._definitions["repskip"].build(bll, obj, [], {}, self)[1][0])
+                
                 LOGGER.log(3, f"{block._command}: {in_param}")
-                out = self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)
+                out = [self.block_build(bll, obj, x, y, block_type, 0, rule[1]._params, in_param)]
+                out.extend(out_chunks)
+
+                #예외처리:tag
                 if ("tag" in in_param) and ("updatevar" in in_param["tag"]):
                     var_id = bll.find_var("var", in_param["VARIABLE"], obj._id)._id
                     if var_id in bll._local_var_monitor:
@@ -166,9 +174,9 @@ class translator:
                             bll._local_var_monitor[var_id],
                             var_id
                         ], {}, self)[1][0]
-                        return [out, out2]
-                    else: return [out] #전역변수일 시 관리 필요 없음
-                else: return [out]
+                        out.extend(out2)
+                
+                return out
             
         LOGGER.log(1, f"필드가 매칭된 정의를 찾을 수 없음: {block._command}")
 
@@ -187,6 +195,8 @@ class translator:
                 obj_id = bll.find_obj(in_param["OBJECT"])._id
                 var_id = bll.find_var("var", in_param["PROPERTY"], obj_id)._id
                 value = str(bll._local_var_monitor[var_id])
+            elif command[2] == "str":
+                value = command[3]
             in_param[command[1]] = value
         if command[0] == "creg":
             params = []
@@ -211,6 +221,10 @@ class translator:
         if command[0] == "tag":
             if "tag" not in in_param: in_param["tag"] = []
             in_param["tag"].append(command[1])
+
+        if command[0] == "append":
+            return SNIP.global_wrapper._definitions[command[1]].build(bll, obj, [], in_param, self)[1]
+        return []
 
     def block_build(self, bll: BLL.BLLfile, obj, x, y, command, literal_value, params, in_param: dict):
         out = dict()

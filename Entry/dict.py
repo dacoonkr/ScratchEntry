@@ -7,11 +7,12 @@ grammer = """
 # *     : 파람 중 STATEMENT
 # &&~=~ : 필터링-필드 문자열이 일치하는것만
 # &#~=~ : 필터링-리터럴 값이 일치하는것만
+# &@~.~=~ : 필터링-메뉴(_menu)의 필드 문자열값이 일치하는것만
 #     ~ : ,로 구분해서 여러 개 입력 가능
-# &@    : 필터링-환경 옵션이 존재하는 것만
 #처리 구분(/로 시작)
 #var name type label (label이 _new_일시 개별로 생성)
 #    cast: 신호
+#    str: 문자열
 #    localview: 로컬변수 모니터링 인덱스
 #creg ID obj param1..: 스니펫(청크 타입) 등록
 #    obj: name or self
@@ -26,7 +27,7 @@ grammer = """
 # &!    : 필드 null값
 # &~~   : 필드 문자열값
 # &&~~  : number 리터럴 블럭 생성
-# &@~~ : number 리터럴 블럭 생성(파라미터 사용)
+# &@~~  : number 리터럴 블럭 생성(파라미터 사용)
 # @~~   : 리터럴을 생성하지 않고 바로 필드 문자열로 넣음
 # ?b    : 스테이지 오브젝트 id
 # ?B    : 다음 배경 전환 신호
@@ -412,4 +413,62 @@ dict_text = """
 
 {data_listcontainsitem:ITEM:&LIST}
 {is_included_in_list:&!:@LIST%[%l]:&!:ITEM}
+
+{pen_clear}
+{brush_erase_all}
+
+{pen_stamp}
+{brush_stamp}
+
+{pen_penDown}
+{start_drawing}
+
+{pen_penUp}
+{stop_drawing}
+
+{pen_setPenColorToColor:COLOR}
+/append updatecolor
+{set_color:COLOR}
+
+{pen_changePenSizeBy:SIZE}
+{change_thickness:SIZE}
+
+{pen_setPenSizeTo:SIZE}
+{set_thickness:SIZE}
+
+{pen_changePenColorParamBy:VALUE:&@COLOR_PARAM.colorParam=color}
+/var VAR str color
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp_looping:{calc_basic:{get_variable:@VAR%[%plv]}:&PLUS:VALUE}:&100}}
+
+{pen_changePenColorParamBy:VALUE:&@COLOR_PARAM.colorParam=brightness}
+/var VAR str brightness
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp:{calc_basic:{get_variable:@VAR%[%plv]}:&PLUS:VALUE}:&100}}
+
+{pen_changePenColorParamBy:VALUE:&@COLOR_PARAM.colorParam=saturation}
+/var VAR str saturation
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp:{calc_basic:{get_variable:@VAR%[%plv]}:&PLUS:VALUE}:&100}}
+
+{pen_changePenColorParamBy:VALUE:&@COLOR_PARAM.colorParam=transparency}
+{change_brush_transparency:VALUE}
+
+{pen_setPenColorParamTo:VALUE:&@COLOR_PARAM.colorParam=color}
+/var VAR str color
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp_looping:VALUE:&100}}
+
+{pen_setPenColorParamTo:VALUE:&@COLOR_PARAM.colorParam=brightness}
+/var VAR str brightness
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp:VALUE:&100}}
+
+{pen_setPenColorParamTo:VALUE:&@COLOR_PARAM.colorParam=saturation}
+/var VAR str saturation
+/append applyhsv
+{set_variable:@VAR%[%plv]:{!clamp:VALUE:&100}}
+
+{pen_setPenColorParamTo:VALUE:&@COLOR_PARAM.colorParam=transparency}
+{set_brush_transparency:VALUE}
 """
