@@ -88,7 +88,6 @@ def s2b(json):
     for cur in json["targets"]:
         #파생 블록 파싱
         for block in cur["blocks"]:
-            LOGGER.log(3, f"블럭 인식 시작: {block}")
             if type(cur["blocks"][block]) == list: continue #더미 리터럴
             if not OPT.global_option.preserve: #보존 옵션이 없다면
                 command = cur["blocks"][block]["opcode"]
@@ -99,6 +98,7 @@ def s2b(json):
                 blocks, stat_cnt = BLOCK.code_search(id_gen, id_map, cur["blocks"], block)
                 out._stat_block_cnt += stat_cnt
                 out.find_obj(cur["name"])._codes.append(blocks)
+        LOGGER.log(3, f"스프라이트 {out.find_obj(cur['name'])._id} 성공")
     
     cast = BLL.BLLcast()
     cast._id = id_gen.new_id()

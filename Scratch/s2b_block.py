@@ -1,4 +1,5 @@
 import BLL.bll as BLL
+import BLL.bll_logger as LOGGER
 
 def code_search(id_gen, id_map, json, cur_id):
     blocks = BLL.BLLblocks()
@@ -28,5 +29,6 @@ def code_search(id_gen, id_map, json, cur_id):
             block._field[field] = json[cur_id]["fields"][field][0]
         blocks._blocks.append(block)
         stat_cnt += 1
+        LOGGER.log(3, f"블럭 {block._id} 성공")
         cur_id = json[cur_id]["next"]
     return blocks, stat_cnt

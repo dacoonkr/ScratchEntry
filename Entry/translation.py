@@ -67,6 +67,12 @@ class translator:
         return out
 
     def translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock) -> list[dict]:
+        out = self._translation(bll, obj, x, y, block)
+        if out is not None and len(block._id) > 0:
+            LOGGER.log(3, f"블럭 {block._id} 성공")
+        return out
+
+    def _translation(self, bll: BLL.BLLfile, obj: BLL.BLLobj, x, y, block: BLL.BLLblock) -> list[dict]:
         if block._is_literal:
             if block._literal_mode == "text":
                 return [self.block_build(bll, obj, x, y, "text", block._literal_value, [], dict())]
@@ -103,6 +109,7 @@ class translator:
         rules, in_param = self.rules[block._command], dict() #key:
         for rule in rules: #여러 패턴 탐색
             matched = True
+            matched_blocks = []
             for param in rule[0]._params:
                 if param.startswith("@@"):
                     param = param[2:]
@@ -112,8 +119,9 @@ class translator:
                     in_param[param] = block._param[param]._literal_value #str
                 elif param.startswith("@"):
                     param = param[1:]
-                    if block._param[param]._blocks[0]._command.endswith("_menu"):
+                    if block._param[param]._blocks[0]._command.endswith(("_menu", "options")):
                         in_param[param] = block._param[param]._blocks[0]._field[param] #str
+                        matched_blocks.append(block._param[param]._blocks[0])
                     else:
                         matched = False
                         break
@@ -133,6 +141,7 @@ class translator:
                     if block._param[paths[0]]._blocks[0]._field[paths[1]] not in args[1].split(','):
                         matched = False
                         break
+                    matched_blocks.append(block._param[paths[0]]._blocks[0])
                 elif param.startswith("&"):
                     param = param[1:]
                     in_param[param] = block._field[param] #str
@@ -175,7 +184,9 @@ class translator:
                             var_id
                         ], {}, self)[1][0]
                         out.extend(out2)
-                
+
+                for matched_block in matched_blocks:
+                    LOGGER.log(3, f"블럭 {matched_block._id} 성공")
                 return out
             
         LOGGER.log(1, f"필드가 매칭된 정의를 찾을 수 없음: {block._command}")

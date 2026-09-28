@@ -1,4 +1,5 @@
 import BLL.bll as BLL
+import BLL.bll_logger as LOGGER
 import BLL.util as UTIL
 import Entry.translation as TRANS
 import json
@@ -12,6 +13,7 @@ def code_build(bll: BLL.BLLfile, obj: BLL.BLLobj, code: list[BLL.BLLblocks]):
         if blocks._blocks[0]._command == "procedures_definition":
             #[procedure, block...]
             cur.append(parse_procedure(bll, obj, blocks._blocks[0]))
+            LOGGER.log(3, f"블럭 {blocks._blocks[0]._id} 성공")
             for block in blocks._blocks[1:]:
                 cur.extend(trans.translation(bll, obj, 0, 0, block))
             procedure_out.append(cur)

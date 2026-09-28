@@ -1,5 +1,9 @@
 import BLL.bll as BLL
 import option as OPT
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 def stats(bll: BLL.BLLfile):
     tablehead = "========「" + bll._name + "」의 통계 ========"

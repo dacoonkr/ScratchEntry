@@ -42,6 +42,7 @@ def b2e(bll: BLL.BLLfile, input_path):
         for procedure in procedures:
             LOGGER.log(2, f"함수 등록: 소유자({obj_i._displayname}) 인수({','.join([k[1] for k in procedure[0]._arguments])})")
             out._json["functions"].append(function_build(bll, obj, procedure, trans))
+        LOGGER.log(3, f"스프라이트 {obj_i._id} 성공")
     
     for cast in bll._casts:
         LOGGER.log(2, f"신호 등록: {cast._displayname}")
